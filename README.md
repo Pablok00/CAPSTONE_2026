@@ -16,7 +16,7 @@ Como equipo, buscamos aplicar nuestros conocimientos en un entorno real, integra
 | Integrante | Rol |
 |---|---|
 | Pablo Gamboa | Scrum Master y desarrollador Full Stack |
-| Benjamín Salinas | Product Owner interno y desarrollador Frontend / UX |
+| Benjamín Salinas | Product Owner y desarrollador Frontend / UX |
 | Bruno Carpio | Desarrollador, QA y pruebas funcionales |
 
 ---
