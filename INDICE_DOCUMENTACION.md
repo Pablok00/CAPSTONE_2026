@@ -1,17 +1,9 @@
-# Índice de entregas y documentación — BPB
+# Índice de documentación — Capstone BPB 2026
 
-Este repositorio reúne documentos académicos del proyecto Hotel & Centro de Eventos El Almendro. La [aplicación](https://github.com/Pablok00/pruebaelalmendro) se mantiene en un repositorio separado.
+**La navegación oficial del repositorio es el [`README.md`](README.md).** Este archivo se conserva temporalmente como enlace de compatibilidad con las rutas anteriores.
 
-## Documentación grupal
-- [Fase 1](Documentos_Fase_1/README.md): informe y presentación inicial.
-- [Fase 2](Documentos_Fase_2/README.md): informes de avance, requerimientos y evidencias técnicas.
-- [Fase 3](Documentos_Fase_3/README.md): entrega y pruebas finales; pendientes claramente indicados.
+- [Documentación por fases](Documentacion_Por_Fases/README.md)
+- [Entregas grupales](Entregas_Grupales/README.md)
+- [AVA Benjamín](AVA%20Benjamin%20Salinas/) · [AVA Bruno](AVA%20Bruno%20Carpio/) · [AVA Pablo](AVA%20Pablo%20Gamboa/)
 
-## Evidencias individuales
-- [Benjamín Salinas](AVA%20Benjamin%20Salinas/)
-- [Bruno Carpio](AVA%20Bruno%20Carpio/)
-- [Pablo Gamboa](AVA%20Pablo%20Gamboa/)
-
-Las carpetas AVA permanecen sin modificaciones para conservar las rutas académicas originales. Los documentos de cada fase se identifican por su prefijo numérico.
-
-La reubicación grupal se realizó sin cambiar el contenido binario: se conservaron sus blobs Git. Revisar la tabla de pendientes antes de presentar la entrega.
+Gestión Scrum; fases académicas: planificación, desarrollo e implementación/cierre.

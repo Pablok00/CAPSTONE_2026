@@ -1,21 +1,13 @@
 
 # CAPSTONE 2026 | Equipo BPB
 
-## Organización de las entregas y documentación
+## Organización del repositorio
 
-- [Entregables grupales: Entrega 1, 2 y 3](Entregas_Grupales/README.md)
-- [Fase 1 — Planificación (documentación)](Documentos_Fase_1/README.md)
-- [Fase 2 — Desarrollo (documentación)](Documentos_Fase_2/README.md)
-- [Fase 3 — Implementación y cierre (documentación)](Documentos_Fase_3/README.md)
-- [Entregas individuales: Benjamín](AVA%20Benjamin%20Salinas/) · [Bruno](AVA%20Bruno%20Carpio/) · [Pablo](AVA%20Pablo%20Gamboa/)
+- [Documentación por fases: planificación, desarrollo e implementación y cierre](Documentacion_Por_Fases/README.md)
+- [Entregas grupales: Entrega 1, Entrega 2 y Entrega 3](Entregas_Grupales/README.md)
+- Entregas individuales: [Benjamín](AVA%20Benjamin%20Salinas/) · [Bruno](AVA%20Bruno%20Carpio/) · [Pablo](AVA%20Pablo%20Gamboa/)
 
-**Distinción:** las tres entregas son hitos académicos; la metodología de gestión del proyecto es Scrum, con sus sprints y Product Backlog.
-
-
-
-**Ingeniería en Informática - Duoc UC**
-
-Repositorio correspondiente a la asignatura de Capstone 2026, instancia académica en la que aplicamos los conocimientos y competencias adquiridos durante nuestra carrera mediante el desarrollo de una solución informática para un cliente real.
+**Scrum** es el marco de gestión del proyecto. Las fases y entregas son hitos académicos, no sprints ni una metodología híbrida.
 
 ## Sobre nosotros
 

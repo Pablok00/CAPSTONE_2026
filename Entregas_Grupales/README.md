@@ -1,9 +1,9 @@
-# Entregables grupales — Capstone BPB 2026
+# Entregas grupales — Capstone BPB 2026
 
-Esta carpeta reúne exclusivamente los **archivos de entrega académica grupal**. Los documentos de trabajo y las evidencias técnicas se encuentran separados en `Documentos_Fase_1`, `Documentos_Fase_2` y `Documentos_Fase_3`.
+Contiene solo los productos presentados formalmente como entregas de equipo, sin duplicar la documentación técnica por fases.
 
-- [Entrega 1](Entrega_1/): informe y presentación inicial.
-- [Entrega 2](Entrega_2/): informes de avance en español e inglés; presentación grupal aún no incorporada.
-- [Entrega 3](Entrega_3/): implementación y cierre; archivo de presentación final e informe de entrega pendientes de incorporar o confirmar según pauta académica.
+- [Entrega 1 — Planificación](Entrega_1/): informe inicial y primera presentación.
+- [Entrega 2 — Desarrollo](Entrega_2/): dos informes de avance y segunda presentación en PDF.
+- [Entrega 3 — Implementación y cierre](Entrega_3/): pendientes de incorporar los documentos grupales finales, previa comprobación de la pauta.
 
-No confundir «Entrega 1/2/3» (hitos académicos) con «Sprint 1/2/3» (Scrum).
+La documentación técnica y de soporte está en [`Documentacion_Por_Fases`](../Documentacion_Por_Fases/README.md). **Scrum** es el marco de trabajo del proyecto; las entregas académicas no son sprints.

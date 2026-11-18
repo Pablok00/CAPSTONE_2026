@@ -1,12 +1,13 @@
 # Entrega grupal 3 — Implementación y cierre
 
-**Estado: carpeta de destino preparada; no se han incorporado entregables grupales definitivos.**
+**Pendiente:** aún no hay archivos de entrega grupal definitiva depositados en esta carpeta.
 
-Documentos a verificar con la pauta docente antes de la publicación:
-- Informe final grupal de implementación, resultados y cierre del proyecto (Word/PDF, según pauta).
-- Presentación final grupal (PowerPoint/PDF, según pauta).
-- Evidencias formales de implementación y validación del cliente, si las exige la entrega.
+Documentos candidatos a incorporar cuando estén preparados y correspondan a la pauta:
 
-Las matrices, auditoría y documentos de soporte técnico están en [`Documentos_Fase_3`](../../Documentos_Fase_3/); no duplicarlos aquí si no forman parte de la entrega evaluada.
+1. Informe final grupal de implementación, validación y cierre (.docx o .pdf según pauta).
+2. Presentación final del proyecto (.pptx o .pdf según pauta).
+3. Acta o evidencia de aceptación del stakeholder, **solo si existiera una validación real** y fuese exigida.
 
-**Metodología de gestión:** Scrum; las tres entregas son hitos académicos, no sprints.
+El contenido de auditoría, pruebas y trazabilidad permanece como documentación de soporte en [`Documentacion_Por_Fases/Fase_3_Implementacion_y_Cierre`](../../Documentacion_Por_Fases/Fase_3_Implementacion_y_Cierre/). Evitar duplicarlo.
+
+**Metodología:** Scrum; Entrega 3 es una etapa académica, no un sprint.

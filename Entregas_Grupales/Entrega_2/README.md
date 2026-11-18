@@ -1,7 +1,9 @@
 # Entrega grupal 2 — Desarrollo
 
-Archivos conservados del repositorio original:
+Archivos disponibles en el repositorio:
+
 - `Informe de Avance Proyecto APT  Fase 2.docx`
 - `Informe de Avance Proyecto APT  Fase 2 (Ingles).docx`
+- `2da Presentación Capstone 2026 Hotel El Almendro.pdf`
 
-**Pendiente:** presentación grupal de la segunda entrega; no figura en la rama revisada. La documentación de desarrollo permanece en [`Documentos_Fase_2`](../../Documentos_Fase_2/).
+La documentación de desarrollo y las matrices están en [`Documentacion_Por_Fases/Fase_2_Desarrollo`](../../Documentacion_Por_Fases/Fase_2_Desarrollo/).
