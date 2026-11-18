@@ -1,32 +1,29 @@
 # Documentos — Fase 2
 
-Proyecto Capstone 2026 — Equipo BPB / Hotel & Centro de Eventos El Almendro.
+Proyecto Capstone 2026 — equipo BPB / Hotel & Centro de Eventos El Almendro.
 
-## Archivos que ya están en esta rama
-- **Informes/**: avances del proyecto en español e inglés.
-- **Documentacion/**: bitácora y matriz de requisitos original en XLSX.
-- **Evidencias_Proyecto/Documentacion/**: diagramas de arquitectura y base de datos.
-- **Evidencias_Proyecto/Sistema/**: espacio reservado para capturas y pruebas reales.
+## Contenido
 
-## Documentos de Discord revisados — preparados, pendientes de carga
-Los seis archivos binarios originales/corregidos están preparados fuera de GitHub. **Aún no se han subido a esta rama**; no contarlos como entregados hasta incorporarlos.
+- **Documentacion/**: cinco documentos académicos de análisis y diseño, matriz de requerimientos V2 (PDF), matriz original editable (XLSX) y bitácora.
+- **Informes/**: informes de avance del proyecto en español e inglés.
+- **Evidencias_Proyecto/Documentacion/**: diagramas de arquitectura y modelo de base de datos.
+- **Evidencias_Proyecto/Sistema/**: espacio reservado para capturas y evidencias del sistema, todavía pendientes.
 
-Destinos:
-1. `Documentacion/01_Analisis_Caso_y_Vision.docx`
-2. `Documentacion/02_Roadmap_Planificacion_General.docx`
-3. `Documentacion/03_Impact_Mapping.docx`
-4. `Documentacion/04_User_Story_Mapping.docx`
-5. `Documentacion/05_Arquitectura_y_Modelo_Base_Datos.docx`
-6. `Documentacion/06_Matriz_Requerimientos_V2.pdf`
+## Documentos incorporados
 
-Correcciones aplicadas al paquete:
-- Impact Mapping: título de portada corregido de «Roadmap» a «Impact Mapping».
-- User Story Mapping: índice y sección 2 corregidos a «Objetivo del User Story Mapping».
-- Los otros Word se conservaron sin cambios de contenido; la matriz V2 proporcionada es un PDF, no un XLSX editable.
+1. 01_Analisis_Caso_y_Vision.docx
+2. 02_Roadmap_Planificacion_General.docx
+3. 03_Impact_Mapping.docx
+4. 04_User_Story_Mapping.docx
+5. 05_Arquitectura_y_Modelo_Base_Datos.docx
+6. 06_Matriz_Requerimientos_V2.pdf
+
+Los documentos 03 y 04 incluyen correcciones editoriales: la portada de Impact Mapping y el índice y encabezado de la sección 2 de User Story Mapping. Los archivos se conservan sin alterar su contenido en esta reubicación.
 
 ## Pendientes académicos
-- Presentación de Fase 2 en formato requerido.
-- Evidencias documentales y evidencias del sistema con respaldos verificables.
-- Validaciones del stakeholder que los documentos señalan como pendientes.
 
-No publicar datos confidenciales, credenciales ni información privada del hotel.
+- Presentación grupal de Fase 2 en el formato solicitado.
+- Evidencias documentales y del sistema completas, comprobables y sin datos privados.
+- Validaciones con el stakeholder que los documentos identifican como pendientes.
+
+No publicar credenciales, datos reales de usuarios ni información confidencial del hotel.
