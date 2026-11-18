@@ -1,9 +1,7 @@
-# Documentos — Fase 1
+# Fase 1 — Planificación
 
-Proyecto Capstone 2026, equipo BPB — Hotel & Centro de Eventos El Almendro.
+Esta carpeta contiene la **documentación de planificación** del proyecto BPB. El informe y la presentación entregados formalmente se encuentran en [`Entregas_Grupales/Entrega_1`](../Entregas_Grupales/Entrega_1/).
 
-## Archivos
-- [Informe inicial](Informe/Informe%20Hotel%20El%20Almendro%20Capstone%202026%20BPB.docx)
-- [Presentación inicial](Presentacion/Presentacion%20Capstone%202026%20Hotel%20El%20Almendro%20BPB.pptx)
+La gestión del proyecto se documenta mediante **Scrum**. Las fases académicas no equivalen a los sprints.
 
-Estos archivos corresponden a la entrega grupal inicial y se conservaron sin alterar su contenido.
+**Pendiente de incorporación:** documentación complementaria de planificación, si existe y está validada por el equipo. No duplicar los entregables grupales.

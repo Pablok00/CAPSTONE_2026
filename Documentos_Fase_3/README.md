@@ -1,23 +1,16 @@
-# Documentos — Fase 3
+# Fase 3 — Implementación y cierre
 
-**Proyecto:** Hotel & Centro de Eventos El Almendro (OMM) — equipo BPB.  
-**Estado:** preparación de entrega; los documentos preliminares no equivalen a evidencias académicas ya aceptadas.
+Esta carpeta contiene la documentación técnica y académica de soporte para el cierre:
 
-## Archivos disponibles
+- `01_Informe_Final/03_Alcance_y_Limitaciones.docx`: alcance y limitaciones del producto.
+- `02_Pruebas_y_Validacion/01_Informe_Auditoria_y_Pruebas.docx`: informe de auditoría.
+- `02_Pruebas_y_Validacion/02_Matriz_Trazabilidad_Con_Jira_BP2026.xlsx`: matriz de trazabilidad, con relaciones Jira propuestas pendientes de homologación formal.
+- `02_Pruebas_y_Validacion/04_Registro_Casos_Pruebas.xlsx`: casos, resultados y análisis de fallos.
+- `02_Pruebas_y_Validacion/05_Evidencias_Auditoria_2026-11-18.json`: evidencia técnica; revisar datos antes de publicar.
+- `02_Pruebas_y_Validacion/06_Seguimiento_Cierre_Jira_BPB_2026.xlsx`: control de pendientes de Jira.
 
-- [Alcance y limitaciones](01_Informe_Final/Alcance_y_Limitaciones.md)
-- [Informe preliminar de auditoría y pruebas](02_Pruebas_y_Validacion/Informe_Auditoria_y_Pruebas.md)
-- [Matriz de trazabilidad preliminar](02_Pruebas_y_Validacion/Matriz_Trazabilidad_Preliminar.md)
+**Pendientes:** manuales por rol, guía de implementación/despliegue, evidencias finales del sistema y aceptación, según disponibilidad y pauta académica.
 
-## Pendientes de completar
+La **Entrega 3 grupal** se organizará por separado en [`Entregas_Grupales/Entrega_3`](../Entregas_Grupales/Entrega_3/). Los archivos `.md` detallados previos son borradores históricos; se revisarán antes de retirarlos para conservar sus datos.
 
-- Informe de pruebas final con casos ejecutados, evidencia, fecha y responsable.
-- Matriz de trazabilidad cruzada con todos los IDs originales de Jira y requisitos.
-- Manuales de usuario por rol y guía técnica de instalación/despliegue.
-- Evidencias del sistema y base de datos sin información sensible.
-- Presentación final en formato solicitado por la evaluación.
-- Reflexiones individuales de Fase 3: **pendientes de Benjamín y Bruno** en el repositorio; Pablo tiene 3.1 y 3.2 publicados. Verificar envío en AVA además de GitHub.
-
-Los archivos de las carpetas individuales AVA permanecen sin modificar. No añadir capturas de datos reales, credenciales, tokens, documentos privados ni URLs firmadas.
-
-**Referencia técnica:** [repositorio de la aplicación](https://github.com/Pablok00/pruebaelalmendro).
+**Marco de gestión:** Scrum. No confundir hitos de entrega con sprints.
