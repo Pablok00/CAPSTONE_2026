@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'none'; form-action 'none'; base-uri 'none'">
+  <title>Vista local · Gestión de Tareas</title>
+  <link rel="stylesheet" href="../../css/tailwind.css">
+  <link rel="stylesheet" href="../../publicacion/css/ui-system.css">
+  <script defer src="../../js/components/calendarioMensual.js"></script>
+  <script defer src="../../js/views/tareasPendientes.js"></script>
+  <script defer src="../../js/views/gestionTareas.js"></script>
+  <script defer src="./gestion-tareas.mock.js"></script>
+</head>
+<body class="alm-ui bg-slate-50 p-4 sm:p-6">
+  <section class="alm-panel p-3 mb-4 max-w-7xl mx-auto">
+    <p id="vista-local-aviso" role="status">Vista aislada, disponible únicamente en localhost.</p>
+    <div id="vista-local-controles" class="flex flex-wrap gap-2" hidden>
+      <button type="button" class="alm-btn-secondary" id="vista-local-fallo">Simular fallo de lectura</button>
+      <button type="button" class="alm-btn-secondary" id="vista-local-incierta">Perder la próxima respuesta de guardado</button>
+    </div>
+  </section>
+  <main id="vista-local-app"></main>
+</body>
+</html>

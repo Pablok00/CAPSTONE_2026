@@ -1,0 +1,146 @@
+-- Paso 192: UNA consulta de metadatos para revisión MANUAL. NO ejecutada.
+-- Sin filas de cuentas, claves, SQL DDL/DML ni invocaciones a RPC. No Logs Query.
+-- Revisar resultado localmente: los cuerpos existentes podrían contener literales privados.
+WITH RECURSIVE nombres_tablas(nombre) AS (VALUES ('administraciones_temporales'),
+('bodegas_inventariados'),
+('comentarios_excel'),
+('contactos_servicio_fosas'),
+('del_registro_eliminaciones'),
+('elementos_mantenibles'),
+('fosas_alcantarillado'),
+('fosas_mantencion_fuente'),
+('gastos'),
+('guia_contenido_auditoria'),
+('guia_mantencion_items'),
+('guia_mantencion_secciones'),
+('guias_mantencion'),
+('importaciones_excel'),
+('inventario_catalogo_auditoria'),
+('inventario_entradas_formatos'),
+('inventario_movimientos'),
+('inventario_movimientos_anulaciones'),
+('inventario_productos'),
+('inventarios_elementos'),
+('jardineria_contenido_auditoria'),
+('jardineria_labores_complementarias'),
+('jardineria_riego_notas'),
+('jardineria_riego_programacion'),
+('jardineria_riego_zonas'),
+('jardineria_sectores'),
+('jardineria_trabajos'),
+('listado_engrase_aceitado'),
+('mantencion_historial'),
+('mantencion_historial_anulaciones'),
+('mantenciones'),
+('mantenciones_operativas'),
+('mantenciones_operativas_anulaciones'),
+('mantenciones_reactivas'),
+('mantenciones_reactivas_ciclos'),
+('metas_area'),
+('movimientos_inventario'),
+('origen_registros'),
+('pendientes_mantencion'),
+('plan_anual_items'),
+('plan_anual_pendientes'),
+('planes_anuales'),
+('presupuesto_items'),
+('presupuestos'),
+('prevencion_documentos'),
+('prevencion_gantt_contenido_auditoria'),
+('prevencion_gantt_fases'),
+('prevencion_gantt_items'),
+('prevencion_gantt_planes'),
+('prevencion_gantt_segmentos'),
+('proveedores'),
+('proyectos'),
+('roles'),
+('solicitudes_notificaciones_revision'),
+('solicitudes_reactivas'),
+('solicitudes_reactivas_avisos'),
+('solicitudes_reactivas_eliminaciones_auditoria'),
+('solicitudes_reactivas_eventos'),
+('tareas'),
+('televisores_habitaciones'),
+('trabajadores'),
+('trabajadores_documentos'),
+('ubicaciones'),
+('usuarios'),
+('usuarios_correos_verificados'),
+('usuarios_eliminaciones_operaciones'),
+('usuarios_gestion_auditoria'),
+('usuarios_sesion_cambios')),
+nombres_funciones(nombre) AS (VALUES ('aprobar_usuario_normal'),
+('bodega_registrar_inventariado'),
+('es_administrador_permanente_actual'),
+('es_rol_administrador'),
+('gantt_proyecto_leer'),
+('guia_contenido_guardar_guia'),
+('guia_contenido_guardar_item'),
+('guia_contenido_guardar_seccion'),
+('guia_contenido_reordenar'),
+('jardineria_labor_actualizar'),
+('jardineria_riego_nota_actualizar'),
+('jardineria_riego_programacion_actualizar'),
+('jardineria_riego_zona_actualizar'),
+('jardineria_sector_actualizar'),
+('jardineria_trabajo_actualizar'),
+('listar_avisos_solicitudes'),
+('mantencion_anular_historial'),
+('mantencion_anular_mantencion'),
+('mantencion_reactiva_asignar'),
+('mantencion_reactiva_cambiar_estado'),
+('mantencion_reactiva_reabrir'),
+('mantencion_registrar_evento'),
+('mantencion_registrar_mantencion'),
+('mantencion_revisar_estado'),
+('marcar_aviso_solicitud'),
+('marcar_notificacion_revision_leida'),
+('mi_estado_administrativo'),
+('otorgar_administracion_temporal'),
+('prevencion_gantt_guardar_fase'),
+('prevencion_gantt_guardar_item'),
+('prevencion_gantt_guardar_plan'),
+('prevencion_gantt_reordenar'),
+('revocar_administracion_temporal'),
+('solicitud_reactiva_crear_aprobada'),
+('solicitud_reactiva_decidir'),
+('solicitud_reactiva_eliminar_definitiva')),
+relaciones AS (
+ SELECT c.oid,n.nspname AS esquema,c.relname AS nombre,c.relrowsecurity,c.relforcerowsecurity,c.relacl
+ FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace
+ WHERE (n.nspname='public' AND c.relname IN (SELECT nombre FROM nombres_tablas))
+    OR (n.nspname='auth' AND c.relname IN ('users','sessions'))
+    OR (n.nspname='storage' AND c.relname IN ('objects','buckets'))
+), semillas AS (
+ SELECT p.oid FROM pg_catalog.pg_proc p JOIN pg_catalog.pg_namespace n ON n.oid=p.pronamespace
+ WHERE n.nspname='public' AND p.prokind='f' AND p.proname IN (SELECT nombre FROM nombres_funciones)
+ UNION SELECT t.tgfoid FROM pg_catalog.pg_trigger t JOIN relaciones r ON r.oid=t.tgrelid WHERE NOT t.tgisinternal
+ UNION SELECT d.refobjid FROM pg_catalog.pg_policy p JOIN relaciones r ON r.oid=p.polrelid
+ JOIN pg_catalog.pg_depend d ON d.classid='pg_catalog.pg_policy'::regclass AND d.objid=p.oid AND d.refclassid='pg_catalog.pg_proc'::regclass
+), funciones(oid) AS (
+ SELECT oid FROM semillas UNION SELECT d.refobjid FROM funciones f JOIN pg_catalog.pg_depend d
+ ON d.classid='pg_catalog.pg_proc'::regclass AND d.objid=f.oid AND d.refclassid='pg_catalog.pg_proc'::regclass
+ JOIN pg_catalog.pg_proc p ON p.oid=d.refobjid JOIN pg_catalog.pg_namespace n ON n.oid=p.pronamespace
+ WHERE n.nspname IN ('public','auth','storage') AND p.prokind='f'
+)
+SELECT jsonb_build_object(
+ 'server_version',current_setting('server_version'),
+ 'sha256_disponible',pg_catalog.to_regprocedure('pg_catalog.sha256(bytea)') IS NOT NULL,
+ 'relaciones', (SELECT jsonb_agg(jsonb_build_object('esquema',r.esquema,'nombre',r.nombre,
+   'rls',r.relrowsecurity,'forzada',r.relforcerowsecurity,'acl',r.relacl::text,
+   'columnas',(SELECT jsonb_agg(jsonb_build_object('nombre',a.attname,'tipo',pg_catalog.format_type(a.atttypid,a.atttypmod),'not_null',a.attnotnull) ORDER BY a.attnum)
+     FROM pg_catalog.pg_attribute a WHERE a.attrelid=r.oid AND a.attnum>0 AND NOT a.attisdropped),
+   'restricciones',(SELECT jsonb_agg(pg_catalog.pg_get_constraintdef(c.oid)) FROM pg_catalog.pg_constraint c WHERE c.conrelid=r.oid),
+   'triggers',(SELECT jsonb_agg(pg_catalog.pg_get_triggerdef(t.oid)) FROM pg_catalog.pg_trigger t WHERE t.tgrelid=r.oid AND NOT t.tgisinternal),
+   'politicas',(SELECT jsonb_agg(jsonb_build_object('nombre',p.polname,'comando',p.polcmd,'permisiva',p.polpermissive,
+     'roles',(SELECT jsonb_agg(CASE WHEN id=0 THEN 'PUBLIC' ELSE pg_catalog.pg_get_userbyid(id)::text END) FROM unnest(p.polroles) x(id)),
+     'using',pg_catalog.pg_get_expr(p.polqual,p.polrelid),'with_check',pg_catalog.pg_get_expr(p.polwithcheck,p.polrelid)))
+     FROM pg_catalog.pg_policy p WHERE p.polrelid=r.oid)) ORDER BY r.esquema,r.nombre) FROM relaciones r),
+ 'funciones',(SELECT jsonb_agg(jsonb_build_object('esquema',n.nspname,'nombre',p.proname,'acl',p.proacl::text,
+   'propietario',pg_catalog.pg_get_userbyid(p.proowner),'security_definer',p.prosecdef,
+   'definicion',pg_catalog.pg_get_functiondef(p.oid)) ORDER BY n.nspname,p.proname,p.oid)
+   FROM funciones f JOIN pg_catalog.pg_proc p ON p.oid=f.oid JOIN pg_catalog.pg_namespace n ON n.oid=p.pronamespace),
+ 'fk_entrantes_identidad',(SELECT jsonb_agg(jsonb_build_object('tabla',c.conrelid::regclass::text,'nombre',c.conname,'definicion',pg_catalog.pg_get_constraintdef(c.oid)))
+   FROM pg_catalog.pg_constraint c WHERE c.contype='f' AND c.confrelid IN ('auth.users'::regclass,'public.usuarios'::regclass)),
+ 'limite','Metadatos de rutas literales detectadas, no prueba de ejecución ni cobertura de referencias sin FK/dinámicas. No certifica conservación.'
+) AS metadatos_paso192;

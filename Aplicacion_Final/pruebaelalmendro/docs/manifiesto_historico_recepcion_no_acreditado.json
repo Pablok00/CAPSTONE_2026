@@ -1,0 +1,334 @@
+{
+  "version": "paso192-recepcion-candidato-v1",
+  "estado": "NO_ACREDITADO",
+  "conservacion_historica_certificada": false,
+  "fuente_sha256": "f9983324530cc12b7b1be4ed77a55081bdc9919e1359001bc15b63d99466e708",
+  "alcance": "Recepción habilitada; conservar solicitud y aviso íntegros; no habilita eliminación",
+  "reglas_historicas": [
+    {
+      "relacion": "public.solicitudes_reactivas",
+      "vinculo": "creada_por",
+      "snapshot": "creador_nombre_snapshot",
+      "tratamiento": "conservar_uuid_estado_contenido_fechas_y_snapshot",
+      "evidencia": "SHA-256 por fila completa, incluye estado pendiente",
+      "revision_fk_triggers_rls": "PENDIENTE"
+    },
+    {
+      "relacion": "public.solicitudes_reactivas_avisos",
+      "vinculo": "solicitud_id",
+      "tratamiento": "conservar_fila_completa_de_cada_solicitud_del_objetivo",
+      "evidencia": "SHA-256 por fila completa",
+      "revision_fk_triggers_rls": "PENDIENTE"
+    }
+  ],
+  "referencias_bloqueadas_por_evaluador": [
+    {
+      "categoria": "delegaciones",
+      "relacion": "public.administraciones_temporales",
+      "columnas_referencia": [
+        "usuario_id",
+        "otorgado_por",
+        "revocado_por"
+      ],
+      "predicado_evaluador": "t.usuario_id = p_objetivo_id\n               OR t.otorgado_por = p_objetivo_id\n               OR t.revocado_por = p_objetivo_id",
+      "tratamiento": "bloquear_si_existe",
+      "revision_fk_triggers_rls": "PENDIENTE"
+    },
+    {
+      "categoria": "bodegas_inventariados",
+      "relacion": "public.bodegas_inventariados",
+      "columnas_referencia": [
+        "registrado_por"
+      ],
+      "predicado_evaluador": "t.registrado_por = p_objetivo_id",
+      "tratamiento": "bloquear_si_existe",
+      "revision_fk_triggers_rls": "PENDIENTE"
+    },
+    {
+      "categoria": "auditoria_eliminaciones_actor",
+      "relacion": "public.del_registro_eliminaciones",
+      "columnas_referencia": [
+        "ejecutado_por"
+      ],
+      "predicado_evaluador": "t.ejecutado_por = p_objetivo_id",
+      "tratamiento": "bloquear_si_existe",
+      "revision_fk_triggers_rls": "PENDIENTE"
+    },
+    {
+      "categoria": "auditoria_eliminaciones_objetivo",
+      "relacion": "public.del_registro_eliminaciones",
+      "columnas_referencia": [
+        "entidad_id",
+        "modulo",
+        "entidad_tipo"
+      ],
+      "predicado_evaluador": "t.entidad_id = p_objetivo_id\n              AND t.modulo = 'Administración de Usuarios'\n              AND t.entidad_tipo = 'usuario'",
+      "tratamiento": "bloquear_si_existe",
+      "revision_fk_triggers_rls": "PENDIENTE"
+    },
+    {
+      "categoria": "guia_contenido_auditoria",
+      "relacion": "public.guia_contenido_auditoria",
+      "columnas_referencia": [
+        "autor_id"
+      ],
+      "predicado_evaluador": "t.autor_id = p_objetivo_id",
+      "tratamiento": "bloquear_si_existe",
+      "revision_fk_triggers_rls": "PENDIENTE"
+    },
+    {
+      "categoria": "inventario_catalogo_auditoria",
+      "relacion": "public.inventario_catalogo_auditoria",
+      "columnas_referencia": [
+        "registrado_por_id"
+      ],
+      "predicado_evaluador": "t.registrado_por_id = p_objetivo_id",
+      "tratamiento": "bloquear_si_existe",
+      "revision_fk_triggers_rls": "PENDIENTE"
+    },
+    {
+      "categoria": "inventario_entradas_formatos",
+      "relacion": "public.inventario_entradas_formatos",
+      "columnas_referencia": [
+        "actor_id"
+      ],
+      "predicado_evaluador": "t.actor_id = p_objetivo_id",
+      "tratamiento": "bloquear_si_existe",
+      "revision_fk_triggers_rls": "PENDIENTE"
+    },
+    {
+      "categoria": "inventario_movimientos",
+      "relacion": "public.inventario_movimientos",
+      "columnas_referencia": [
+        "registrado_por_id"
+      ],
+      "predicado_evaluador": "t.registrado_por_id = p_objetivo_id",
+      "tratamiento": "bloquear_si_existe",
+      "revision_fk_triggers_rls": "PENDIENTE"
+    },
+    {
+      "categoria": "inventario_movimientos_anulaciones",
+      "relacion": "public.inventario_movimientos_anulaciones",
+      "columnas_referencia": [
+        "registrado_por_id"
+      ],
+      "predicado_evaluador": "t.registrado_por_id = p_objetivo_id",
+      "tratamiento": "bloquear_si_existe",
+      "revision_fk_triggers_rls": "PENDIENTE"
+    },
+    {
+      "categoria": "inventario_productos",
+      "relacion": "public.inventario_productos",
+      "columnas_referencia": [
+        "creado_por"
+      ],
+      "predicado_evaluador": "t.creado_por = p_objetivo_id",
+      "tratamiento": "bloquear_si_existe",
+      "revision_fk_triggers_rls": "PENDIENTE"
+    },
+    {
+      "categoria": "jardineria_contenido_auditoria",
+      "relacion": "public.jardineria_contenido_auditoria",
+      "columnas_referencia": [
+        "autor_id"
+      ],
+      "predicado_evaluador": "t.autor_id = p_objetivo_id",
+      "tratamiento": "bloquear_si_existe",
+      "revision_fk_triggers_rls": "PENDIENTE"
+    },
+    {
+      "categoria": "mantencion_historial",
+      "relacion": "public.mantencion_historial",
+      "columnas_referencia": [
+        "revisado_por"
+      ],
+      "predicado_evaluador": "t.revisado_por = p_objetivo_id",
+      "tratamiento": "bloquear_si_existe",
+      "revision_fk_triggers_rls": "PENDIENTE"
+    },
+    {
+      "categoria": "mantencion_historial_anulaciones",
+      "relacion": "public.mantencion_historial_anulaciones",
+      "columnas_referencia": [
+        "anulado_por"
+      ],
+      "predicado_evaluador": "t.anulado_por = p_objetivo_id",
+      "tratamiento": "bloquear_si_existe",
+      "revision_fk_triggers_rls": "PENDIENTE"
+    },
+    {
+      "categoria": "mantenciones_operativas",
+      "relacion": "public.mantenciones_operativas",
+      "columnas_referencia": [
+        "registrado_por"
+      ],
+      "predicado_evaluador": "t.registrado_por = p_objetivo_id",
+      "tratamiento": "bloquear_si_existe",
+      "revision_fk_triggers_rls": "PENDIENTE"
+    },
+    {
+      "categoria": "mantenciones_operativas_anulaciones",
+      "relacion": "public.mantenciones_operativas_anulaciones",
+      "columnas_referencia": [
+        "anulado_por"
+      ],
+      "predicado_evaluador": "t.anulado_por = p_objetivo_id",
+      "tratamiento": "bloquear_si_existe",
+      "revision_fk_triggers_rls": "PENDIENTE"
+    },
+    {
+      "categoria": "mantenciones_reactivas",
+      "relacion": "public.mantenciones_reactivas",
+      "columnas_referencia": [
+        "creada_por"
+      ],
+      "predicado_evaluador": "t.creada_por = p_objetivo_id",
+      "tratamiento": "bloquear_si_existe",
+      "revision_fk_triggers_rls": "PENDIENTE"
+    },
+    {
+      "categoria": "prevencion_documentos",
+      "relacion": "public.prevencion_documentos",
+      "columnas_referencia": [
+        "creado_por"
+      ],
+      "predicado_evaluador": "t.creado_por = p_objetivo_id",
+      "tratamiento": "bloquear_si_existe",
+      "revision_fk_triggers_rls": "PENDIENTE"
+    },
+    {
+      "categoria": "prevencion_gantt_contenido_auditoria",
+      "relacion": "public.prevencion_gantt_contenido_auditoria",
+      "columnas_referencia": [
+        "autor_id"
+      ],
+      "predicado_evaluador": "t.autor_id = p_objetivo_id",
+      "tratamiento": "bloquear_si_existe",
+      "revision_fk_triggers_rls": "PENDIENTE"
+    },
+    {
+      "categoria": "solicitudes_notificaciones_revision",
+      "relacion": "public.solicitudes_notificaciones_revision",
+      "columnas_referencia": [
+        "destinatario_id"
+      ],
+      "predicado_evaluador": "t.destinatario_id = p_objetivo_id",
+      "tratamiento": "bloquear_si_existe",
+      "revision_fk_triggers_rls": "PENDIENTE"
+    },
+    {
+      "categoria": "solicitudes_reactivas_otras_acciones",
+      "relacion": "public.solicitudes_reactivas",
+      "columnas_referencia": [
+        "revisada_por",
+        "anulada_por"
+      ],
+      "predicado_evaluador": "t.revisada_por = p_objetivo_id\n               OR t.anulada_por = p_objetivo_id",
+      "tratamiento": "bloquear_si_existe",
+      "revision_fk_triggers_rls": "PENDIENTE"
+    },
+    {
+      "categoria": "solicitudes_eliminaciones_auditoria",
+      "relacion": "public.solicitudes_reactivas_eliminaciones_auditoria",
+      "columnas_referencia": [
+        "eliminado_por"
+      ],
+      "predicado_evaluador": "t.eliminado_por = p_objetivo_id",
+      "tratamiento": "bloquear_si_existe",
+      "revision_fk_triggers_rls": "PENDIENTE"
+    },
+    {
+      "categoria": "solicitudes_reactivas_eventos",
+      "relacion": "public.solicitudes_reactivas_eventos",
+      "columnas_referencia": [
+        "actor_id"
+      ],
+      "predicado_evaluador": "t.actor_id = p_objetivo_id",
+      "tratamiento": "bloquear_si_existe",
+      "revision_fk_triggers_rls": "PENDIENTE"
+    },
+    {
+      "categoria": "trabajadores_documentos",
+      "relacion": "public.trabajadores_documentos",
+      "columnas_referencia": [
+        "creado_por"
+      ],
+      "predicado_evaluador": "t.creado_por = p_objetivo_id",
+      "tratamiento": "bloquear_si_existe",
+      "revision_fk_triggers_rls": "PENDIENTE"
+    },
+    {
+      "categoria": "usuarios_gestion_auditoria",
+      "relacion": "public.usuarios_gestion_auditoria",
+      "columnas_referencia": [
+        "actor_id",
+        "objetivo_id"
+      ],
+      "predicado_evaluador": "t.actor_id = p_objetivo_id\n               OR t.objetivo_id = p_objetivo_id",
+      "tratamiento": "bloquear_si_existe",
+      "revision_fk_triggers_rls": "PENDIENTE"
+    },
+    {
+      "categoria": "operaciones_eliminacion_como_actor",
+      "relacion": "public.usuarios_eliminaciones_operaciones",
+      "columnas_referencia": [
+        "actor_id"
+      ],
+      "predicado_evaluador": "t.actor_id = p_objetivo_id",
+      "tratamiento": "bloquear_si_existe",
+      "revision_fk_triggers_rls": "PENDIENTE"
+    }
+  ],
+  "otros_bloqueos_confirmados": [
+    {
+      "relacion": "storage.objects",
+      "columnas": [
+        "owner_id",
+        "owner"
+      ],
+      "tratamiento": "bloquear_si_existe_union_sin_duplicar"
+    },
+    {
+      "relacion": "public.mantenciones",
+      "columnas": [
+        "responsable_id"
+      ],
+      "tratamiento": "bloquear_si_existe"
+    },
+    {
+      "relacion": "public.tareas",
+      "columnas": [
+        "responsable_id"
+      ],
+      "tratamiento": "bloquear_si_existe"
+    }
+  ],
+  "pendientes": [
+    {
+      "relacion": "public.alertas",
+      "columna_de_vinculo": null,
+      "tratamiento": "bloquear_hasta_identificar_esquema_y_comprobar_cero"
+    },
+    {
+      "relacion": "public.solicitudes_reactivas_avisos_estado",
+      "columna_de_vinculo": null,
+      "tratamiento": "bloquear_hasta_identificar_esquema_y_comprobar_cero"
+    },
+    "Identificar todos los auxiliares de sesión/correo CASCADE por DDL real",
+    "Revisar FK/triggers/columnas/RLS/RPC y rutas dinámicas; cualquier referencia nueva exige revisión",
+    "Verificar guardas de reserva y escritores con READ COMMITTED en motor real",
+    "No autorizar conservación global a partir de este candidato ni de mocks"
+  ],
+  "puede_eliminar": false,
+  "eliminacion_habilitada": false,
+  "continuidad_375K29": {
+    "fecha": "2026-11-16",
+    "clasificacion": "REFERENCIA_HISTORICA_NECESARIA",
+    "sustituido_operativamente_por": "Eliminación integral V2 instalada y aprobada en producción según usuario",
+    "no_es_certificado_v2": true,
+    "flags_y_pendientes_originales": "Se conservan como evidencia histórica192, NO describen bloqueos actuales ni autorizan ejecución",
+    "dependencia": "tests/usuario_seguridad_paso192.test.mjs y hash de captura_historica_contratos_instalados.json",
+    "contratos_actuales": "docs/HANDOFF_TECNICO.md — PASO 375K.29",
+    "eliminar": "NO: dependencias de regresión y trazabilidad"
+  }
+}

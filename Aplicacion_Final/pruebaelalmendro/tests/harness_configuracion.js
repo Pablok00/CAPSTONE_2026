@@ -1,0 +1,20 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert');let total=0;
+function check(n,v){assert.ok(v,n);total++;console.log('[PASS] '+n);}
+const codigo=fs.readFileSync('js/views/configuracion.js','utf8'),html=fs.readFileSync('index.html','utf8');
+const clases=new Set(),guardado={},r={state:{settings:{appearance:{theme:'light'}}},document:{documentElement:{classList:{contains:c=>clases.has(c),toggle(c,on){if(on)clases.add(c);else clases.delete(c);}}}},localStorage:{setItem(k,v){guardado[k]=v;}},saveState(){},renderCurrentView(){},passwordPersonalCuentaActual:()=>({id:'propia'}),esAdminOperativoActual:()=>false,hasAccess:()=>false};vm.createContext(r);vm.runInContext(codigo,r);
+check('cuatro apartados personales exactos',vm.runInContext('CONFIG_PERSONAL_TABS.length',r)===4&&r.renderSettingsView().includes('Apariencia')&&r.renderSettingsView().includes('Seguridad de mi cuenta')&&r.renderSettingsView().includes('Preguntas frecuentes')&&r.renderSettingsView().includes('Reportar problema'));
+for(const rol of ['ADMINISTRADOR','TECNICO','RECEPCION','SOLICITANTE']){
+ r.state.currentUser={role:rol};for(const tab of ['apariencia','seguridad','faq','reportar']){r.switchConfigTab(tab);check(rol+' accede a '+tab,!!r.renderActiveConfigSection(tab));}
+ check(rol+' no obtiene secciones administrativas',r.renderActiveConfigSection('hotel')===''&&r.renderActiveConfigSection('account')==='');
+}
+r.setThemePreference('dark');check('tema oscuro aplica y persiste clave existente',clases.has('dark')&&guardado.hotel_theme==='dark'&&r.state.settings.appearance.theme==='dark');r.setThemePreference('light');check('tema claro aplica y persiste',!clases.has('dark')&&guardado.hotel_theme==='light');r.setThemePreference('invalido');check('rechaza tema no autorizado',guardado.hotel_theme==='light');
+check('seguridad solicita correo sin formulario de cambio inmediato',r.renderSeguridadMiCuenta().includes('abrirCambioPasswordPersonal()')&&r.renderSeguridadMiCuenta().includes('Cambiar contraseña por correo')&&!r.renderSeguridadMiCuenta().includes('<form')&&!codigo.includes('updateUser('));
+check('FAQ desplegable y sin notificaciones ficticias',(r.renderConfigFaq().match(/<details /g)||[]).length===8&&!r.renderConfigFaq().includes('notificaciones automáticas'));
+check('reporte pendiente sin envío ni almacenamiento',r.renderConfigReportar().includes('Envío pendiente de habilitación')&&r.renderConfigReportar().includes('type="submit" disabled')&&!codigo.includes('Reporte enviado')&&!codigo.includes('fetch('));let prevenido=false;r.handleReportIssue({preventDefault(){prevenido=true;}});check('envío por teclado o invocación no navega ni simula éxito',prevenido);
+check('menú lateral y panel único conservan navegación accesible',r.renderSettingsView().includes('alm-settings-layout')&&r.renderSettingsView().includes('aria-controls="config-personal-contenido"')&&r.renderSettingsView().includes('id="config-personal-contenido"'));
+check('apariencia ofrece dos vistas CSS sin datos ficticios',(r.renderSectionAppearance().match(/class="alm-theme-preview/g)||[]).length===2&&r.renderSectionAppearance().includes('alm-preview-light')&&r.renderSectionAppearance().includes('alm-preview-dark'));
+const previo=guardado.hotel_theme;r.passwordPersonalCuentaActual=()=>null;check('sesión no habilitada sin presentación',r.renderSettingsView()===''&&r.renderActiveConfigSection('seguridad')==='');r.setThemePreference('dark');check('sesión no habilitada sin acciones',guardado.hotel_theme===previo);
+check('barra sin buscador global ni control de tema',!html.includes('id="global-search-input"')&&!html.includes('id="btn-theme-toggle"'));check('cierre mantiene handler único con texto completo',html.includes('id="btn-topbar-logout" onclick="handleLogout()"')&&html.includes('whitespace-nowrap">Cerrar sesión'));
+check('usuario rol y notificaciones permanecen',['topbar-user-name','topbar-role-badge','btn-notification-dropdown'].every(id=>html.includes('id="'+id+'"')));
+// La confirmación se verifica con el controlador real en harness_logout.js.
+console.log(total+'/'+total+' PASS — Configuración personal (solo memoria)');

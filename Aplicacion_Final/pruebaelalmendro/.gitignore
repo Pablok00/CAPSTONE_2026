@@ -1,0 +1,47 @@
+# Secretos y variables locales: la SPA no carga archivos .env.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+service-account*.json
+
+# Configuración local de herramientas de despliegue.
+.vercel/
+
+# Excluir archivos locales no operativos y secretos del respaldo compartido.
+respaldos/
+data/
+supabase-test.html
+node_modules/
+*.zip
+*.rar
+*.7z
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+CONTEXTO_PROYECTO.md
+HANDOFF_MANTENCION_GENERAL.md
+ARCHITECTURA_3_CAPAS.md
+
+# Metadatos/cache locales de Supabase CLI; no publicar vinculos locales.
+supabase/.temp/
+
+# Estado local del desarrollador y resultados de pruebas, no fuentes del equipo.
+.vscode/
+.idea/
+.codex/
+.agents/
+coverage/
+test-results/
+playwright-report/
+*.bak
+*.dump
+*.sql.gz
+*.sqlite
+*.sqlite3
+*.db
