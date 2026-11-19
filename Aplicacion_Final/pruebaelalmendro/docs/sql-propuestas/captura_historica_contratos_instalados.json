@@ -1,0 +1,470 @@
+[
+  {
+    "contratos_paso189": {
+      "limite": "Solo definiciones; pg_depend puede omitir llamadas PLpgSQL o SQL dinamico. No certifica RLS global, preservacion ni ejecucion.",
+      "funciones": [
+        {
+          "acl": "{=X/supabase_auth_admin,supabase_auth_admin=X/supabase_auth_admin,dashboard_user=X/supabase_auth_admin}",
+          "nombre": "uid",
+          "esquema": "auth",
+          "retorno": "uuid",
+          "argumentos": "",
+          "definicion": "CREATE OR REPLACE FUNCTION auth.uid()\n RETURNS uuid\n LANGUAGE sql\n STABLE\nAS $function$\n  select \n  coalesce(\n    nullif(current_setting('request.jwt.claim.sub', true), ''),\n    (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'sub')\n  )::uuid\n$function$\n",
+          "propietario": "supabase_auth_admin",
+          "configuracion": null,
+          "security_definer": false,
+          "identidad_argumentos": ""
+        },
+        {
+          "acl": null,
+          "nombre": "del_registro_eliminaciones_inmutable",
+          "esquema": "public",
+          "retorno": "trigger",
+          "argumentos": "",
+          "definicion": "CREATE OR REPLACE FUNCTION public.del_registro_eliminaciones_inmutable()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO 'pg_catalog', 'public', 'pg_temp'\nAS $function$\r\nBEGIN\r\n    RAISE EXCEPTION\r\n        'REGISTRO_ELIMINACION_INMUTABLE';\r\nEND;\r\n$function$\n",
+          "propietario": "postgres",
+          "configuracion": [
+            "search_path=pg_catalog, public, pg_temp"
+          ],
+          "security_definer": false,
+          "identidad_argumentos": ""
+        },
+        {
+          "acl": "{postgres=X/postgres,authenticated=X/postgres}",
+          "nombre": "es_administrador_permanente_actual",
+          "esquema": "public",
+          "retorno": "boolean",
+          "argumentos": "",
+          "definicion": "CREATE OR REPLACE FUNCTION public.es_administrador_permanente_actual()\n RETURNS boolean\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO 'public', 'pg_temp'\nAS $function$\r\n    SELECT EXISTS (\r\n        SELECT 1\r\n        FROM public.usuarios u\r\n        WHERE u.id = auth.uid()\r\n          AND u.estado IS TRUE\r\n          AND public.es_rol_administrador(u.rol_id)\r\n    );\r\n$function$\n",
+          "propietario": "postgres",
+          "configuracion": [
+            "search_path=public, pg_temp"
+          ],
+          "security_definer": true,
+          "identidad_argumentos": ""
+        },
+        {
+          "acl": "{postgres=X/postgres,authenticated=X/postgres}",
+          "nombre": "mi_estado_administrativo",
+          "esquema": "public",
+          "retorno": "TABLE(es_admin_permanente boolean, es_admin_temporal boolean, vigente_hasta timestamp with time zone)",
+          "argumentos": "",
+          "definicion": "CREATE OR REPLACE FUNCTION public.mi_estado_administrativo()\n RETURNS TABLE(es_admin_permanente boolean, es_admin_temporal boolean, vigente_hasta timestamp with time zone)\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO 'public', 'pg_temp'\nAS $function$\r\n    WITH temporal AS (\r\n        SELECT MAX(at.vigente_hasta) AS hasta\r\n        FROM public.administraciones_temporales at\r\n        JOIN public.usuarios u\r\n          ON u.id = at.usuario_id\r\n        WHERE at.usuario_id = auth.uid()\r\n          AND u.estado IS TRUE\r\n          AND u.rol_id IS NOT NULL\r\n          AND at.revocado_at IS NULL\r\n          AND at.vigente_desde <= now()\r\n          AND at.vigente_hasta > now()\r\n    )\r\n    SELECT\r\n        public.es_administrador_permanente_actual(),\r\n        temporal.hasta IS NOT NULL,\r\n        temporal.hasta\r\n    FROM temporal;\r\n$function$\n",
+          "propietario": "postgres",
+          "configuracion": [
+            "search_path=public, pg_temp"
+          ],
+          "security_definer": true,
+          "identidad_argumentos": ""
+        },
+        {
+          "acl": "{postgres=X/postgres}",
+          "nombre": "registrar_senal_cambio_sesion",
+          "esquema": "public",
+          "retorno": "trigger",
+          "argumentos": "",
+          "definicion": "CREATE OR REPLACE FUNCTION public.registrar_senal_cambio_sesion()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\r\nDECLARE\r\n    v_usuario_id uuid;\r\nBEGIN\r\n\r\n    IF TG_TABLE_SCHEMA = 'public'\r\n       AND TG_TABLE_NAME = 'usuarios' THEN\r\n\r\n        v_usuario_id := NEW.id;\r\n\r\n    ELSIF TG_TABLE_SCHEMA = 'public'\r\n       AND TG_TABLE_NAME = 'administraciones_temporales' THEN\r\n\r\n        IF TG_OP = 'DELETE' THEN\r\n            v_usuario_id := OLD.usuario_id;\r\n\r\n        ELSIF TG_OP = 'UPDATE' THEN\r\n\r\n            -- No avisar por cambios que no afectan permisos.\r\n            IF NEW.usuario_id IS NOT DISTINCT FROM OLD.usuario_id\r\n               AND NEW.vigente_desde IS NOT DISTINCT FROM OLD.vigente_desde\r\n               AND NEW.vigente_hasta IS NOT DISTINCT FROM OLD.vigente_hasta\r\n               AND NEW.revocado_at IS NOT DISTINCT FROM OLD.revocado_at\r\n            THEN\r\n                RETURN NEW;\r\n            END IF;\r\n\r\n            -- Si excepcionalmente cambia el destinatario,\r\n            -- avisar también al usuario anterior.\r\n            IF NEW.usuario_id IS DISTINCT FROM OLD.usuario_id THEN\r\n\r\n                INSERT INTO public.usuarios_sesion_cambios (\r\n                    usuario_id, revision, actualizado_en\r\n                )\r\n                VALUES (\r\n                    OLD.usuario_id,\r\n                    1,\r\n                    pg_catalog.clock_timestamp()\r\n                )\r\n                ON CONFLICT (usuario_id)\r\n                DO UPDATE SET\r\n                    revision =\r\n                        public.usuarios_sesion_cambios.revision + 1,\r\n                    actualizado_en =\r\n                        pg_catalog.clock_timestamp();\r\n\r\n            END IF;\r\n\r\n            v_usuario_id := NEW.usuario_id;\r\n\r\n        ELSE\r\n            v_usuario_id := NEW.usuario_id;\r\n        END IF;\r\n\r\n    ELSE\r\n        RAISE EXCEPTION\r\n            'Trigger ejecutado desde una tabla no autorizada.';\r\n    END IF;\r\n\r\n    -- Generar o incrementar la señal.\r\n    INSERT INTO public.usuarios_sesion_cambios (\r\n        usuario_id, revision, actualizado_en\r\n    )\r\n    VALUES (\r\n        v_usuario_id,\r\n        1,\r\n        pg_catalog.clock_timestamp()\r\n    )\r\n    ON CONFLICT (usuario_id)\r\n    DO UPDATE SET\r\n        revision =\r\n            public.usuarios_sesion_cambios.revision + 1,\r\n        actualizado_en =\r\n            pg_catalog.clock_timestamp();\r\n\r\n    IF TG_OP = 'DELETE' THEN\r\n        RETURN OLD;\r\n    END IF;\r\n\r\n    RETURN NEW;\r\nEND;\r\n$function$\n",
+          "propietario": "postgres",
+          "configuracion": [
+            "search_path=\"\""
+          ],
+          "security_definer": true,
+          "identidad_argumentos": ""
+        },
+        {
+          "acl": "{postgres=X/postgres}",
+          "nombre": "usuario_eliminacion_evaluar_recepcion_v1",
+          "esquema": "public",
+          "retorno": "jsonb",
+          "argumentos": "p_objetivo_id uuid",
+          "definicion": "CREATE OR REPLACE FUNCTION public.usuario_eliminacion_evaluar_recepcion_v1(p_objetivo_id uuid)\n RETURNS jsonb\n LANGUAGE plpgsql\n STABLE SECURITY DEFINER\n SET search_path TO ''\nAS $function$\r\nDECLARE\r\n    v_nombre text;\r\n    v_rol text;\r\n    v_rol_id uuid;\r\n    v_habilitado boolean;\r\n\r\n    v_auth_existe boolean;\r\n    v_solicitudes bigint;\r\n    v_snapshots_incorrectos bigint;\r\n    v_avisos bigint;\r\n    v_storage bigint;\r\n    v_mantenciones bigint;\r\n    v_tareas bigint;\r\n\r\n    v_otras_referencias jsonb;\r\n    v_tiene_otras boolean;\r\n    v_apto boolean;\r\nBEGIN\r\n    IF p_objetivo_id IS NULL THEN\r\n        RAISE EXCEPTION 'USUARIO_OBJETIVO_REQUERIDO';\r\n    END IF;\r\n\r\n    -- Identidad y rol permanente.\r\n    SELECT\r\n        u.nombre,\r\n        r.nombre,\r\n        u.rol_id,\r\n        u.estado\r\n    INTO\r\n        v_nombre,\r\n        v_rol,\r\n        v_rol_id,\r\n        v_habilitado\r\n    FROM public.usuarios u\r\n    JOIN public.roles r\r\n      ON r.id = u.rol_id\r\n    WHERE u.id = p_objetivo_id;\r\n\r\n    IF NOT FOUND THEN\r\n        RETURN jsonb_build_object(\r\n            'resultado', 'PERFIL_NO_EXISTE',\r\n            'apto_preliminar', false,\r\n            'conservacion_historica_certificada', false,\r\n            'eliminacion_habilitada', false\r\n        );\r\n    END IF;\r\n\r\n    SELECT EXISTS (\r\n        SELECT 1\r\n        FROM auth.users a\r\n        WHERE a.id = p_objetivo_id\r\n    )\r\n    INTO v_auth_existe;\r\n\r\n    -- Comprobar cada solicitud y su nombre\r\n    -- histórico, no solo que exista la columna.\r\n    SELECT\r\n        COUNT(*),\r\n        COUNT(*) FILTER (\r\n            WHERE s.creador_nombre_snapshot\r\n                IS DISTINCT FROM v_nombre\r\n               OR NULLIF(\r\n                   btrim(s.creador_nombre_snapshot),\r\n                   ''\r\n               ) IS NULL\r\n        )\r\n    INTO\r\n        v_solicitudes,\r\n        v_snapshots_incorrectos\r\n    FROM public.solicitudes_reactivas s\r\n    WHERE s.creada_por = p_objetivo_id;\r\n\r\n    -- Avisos vinculados a esas solicitudes.\r\n    SELECT COUNT(*)\r\n    INTO v_avisos\r\n    FROM public.solicitudes_reactivas_avisos a\r\n    JOIN public.solicitudes_reactivas s\r\n      ON s.id = a.solicitud_id\r\n    WHERE s.creada_por = p_objetivo_id;\r\n\r\n    SELECT COUNT(*)\r\n    INTO v_storage\r\n    FROM storage.objects s\r\n    WHERE s.owner_id = p_objetivo_id::text\r\n       OR s.owner = p_objetivo_id;\r\n\r\n    SELECT COUNT(*)\r\n    INTO v_mantenciones\r\n    FROM public.mantenciones m\r\n    WHERE m.responsable_id = p_objetivo_id;\r\n\r\n    SELECT COUNT(*)\r\n    INTO v_tareas\r\n    FROM public.tareas t\r\n    WHERE t.responsable_id = p_objetivo_id;\r\n\r\n    -- Bloquear referencias adicionales de usuario\r\n    -- entre las identificadas en el Paso 173.\r\n    -- No confundir IDs de trabajadores con\r\n    -- cuentas de autenticación.\r\n    v_otras_referencias := jsonb_build_object(\r\n\r\n        'delegaciones',\r\n        EXISTS (\r\n            SELECT 1\r\n            FROM public.administraciones_temporales t\r\n            WHERE t.usuario_id = p_objetivo_id\r\n               OR t.otorgado_por = p_objetivo_id\r\n               OR t.revocado_por = p_objetivo_id\r\n        ),\r\n\r\n        'bodegas_inventariados',\r\n        EXISTS (\r\n            SELECT 1\r\n            FROM public.bodegas_inventariados t\r\n            WHERE t.registrado_por = p_objetivo_id\r\n        ),\r\n\r\n        'auditoria_eliminaciones_actor',\r\n        EXISTS (\r\n            SELECT 1\r\n            FROM public.del_registro_eliminaciones t\r\n            WHERE t.ejecutado_por = p_objetivo_id\r\n        ),\r\n\r\n        'auditoria_eliminaciones_objetivo',\r\n        EXISTS (\r\n            SELECT 1\r\n            FROM public.del_registro_eliminaciones t\r\n            WHERE t.entidad_id = p_objetivo_id\r\n              AND t.modulo = 'Administración de Usuarios'\r\n              AND t.entidad_tipo = 'usuario'\r\n        ),\r\n\r\n        'guia_contenido_auditoria',\r\n        EXISTS (\r\n            SELECT 1\r\n            FROM public.guia_contenido_auditoria t\r\n            WHERE t.autor_id = p_objetivo_id\r\n        ),\r\n\r\n        'inventario_catalogo_auditoria',\r\n        EXISTS (\r\n            SELECT 1\r\n            FROM public.inventario_catalogo_auditoria t\r\n            WHERE t.registrado_por_id = p_objetivo_id\r\n        ),\r\n\r\n        'inventario_entradas_formatos',\r\n        EXISTS (\r\n            SELECT 1\r\n            FROM public.inventario_entradas_formatos t\r\n            WHERE t.actor_id = p_objetivo_id\r\n        ),\r\n\r\n        'inventario_movimientos',\r\n        EXISTS (\r\n            SELECT 1\r\n            FROM public.inventario_movimientos t\r\n            WHERE t.registrado_por_id = p_objetivo_id\r\n        ),\r\n\r\n        'inventario_movimientos_anulaciones',\r\n        EXISTS (\r\n            SELECT 1\r\n            FROM public.inventario_movimientos_anulaciones t\r\n            WHERE t.registrado_por_id = p_objetivo_id\r\n        ),\r\n\r\n        'inventario_productos',\r\n        EXISTS (\r\n            SELECT 1\r\n            FROM public.inventario_productos t\r\n            WHERE t.creado_por = p_objetivo_id\r\n        ),\r\n\r\n        'jardineria_contenido_auditoria',\r\n        EXISTS (\r\n            SELECT 1\r\n            FROM public.jardineria_contenido_auditoria t\r\n            WHERE t.autor_id = p_objetivo_id\r\n        ),\r\n\r\n        'mantencion_historial',\r\n        EXISTS (\r\n            SELECT 1\r\n            FROM public.mantencion_historial t\r\n            WHERE t.revisado_por = p_objetivo_id\r\n        ),\r\n\r\n        'mantencion_historial_anulaciones',\r\n        EXISTS (\r\n            SELECT 1\r\n            FROM public.mantencion_historial_anulaciones t\r\n            WHERE t.anulado_por = p_objetivo_id\r\n        ),\r\n\r\n        'mantenciones_operativas',\r\n        EXISTS (\r\n            SELECT 1\r\n            FROM public.mantenciones_operativas t\r\n            WHERE t.registrado_por = p_objetivo_id\r\n        ),\r\n\r\n        'mantenciones_operativas_anulaciones',\r\n        EXISTS (\r\n            SELECT 1\r\n            FROM public.mantenciones_operativas_anulaciones t\r\n            WHERE t.anulado_por = p_objetivo_id\r\n        ),\r\n\r\n        'mantenciones_reactivas',\r\n        EXISTS (\r\n            SELECT 1\r\n            FROM public.mantenciones_reactivas t\r\n            WHERE t.creada_por = p_objetivo_id\r\n        ),\r\n\r\n        'prevencion_documentos',\r\n        EXISTS (\r\n            SELECT 1\r\n            FROM public.prevencion_documentos t\r\n            WHERE t.creado_por = p_objetivo_id\r\n        ),\r\n\r\n        'prevencion_gantt_contenido_auditoria',\r\n        EXISTS (\r\n            SELECT 1\r\n            FROM public.prevencion_gantt_contenido_auditoria t\r\n            WHERE t.autor_id = p_objetivo_id\r\n        ),\r\n\r\n        'solicitudes_notificaciones_revision',\r\n        EXISTS (\r\n            SELECT 1\r\n            FROM public.solicitudes_notificaciones_revision t\r\n            WHERE t.destinatario_id = p_objetivo_id\r\n        ),\r\n\r\n        'solicitudes_reactivas_otras_acciones',\r\n        EXISTS (\r\n            SELECT 1\r\n            FROM public.solicitudes_reactivas t\r\n            WHERE t.revisada_por = p_objetivo_id\r\n               OR t.anulada_por = p_objetivo_id\r\n        ),\r\n\r\n        'solicitudes_eliminaciones_auditoria',\r\n        EXISTS (\r\n            SELECT 1\r\n            FROM public.solicitudes_reactivas_eliminaciones_auditoria t\r\n            WHERE t.eliminado_por = p_objetivo_id\r\n        ),\r\n\r\n        'solicitudes_reactivas_eventos',\r\n        EXISTS (\r\n            SELECT 1\r\n            FROM public.solicitudes_reactivas_eventos t\r\n            WHERE t.actor_id = p_objetivo_id\r\n        ),\r\n\r\n        'trabajadores_documentos',\r\n        EXISTS (\r\n            SELECT 1\r\n            FROM public.trabajadores_documentos t\r\n            WHERE t.creado_por = p_objetivo_id\r\n        ),\r\n\r\n        'usuarios_gestion_auditoria',\r\n        EXISTS (\r\n            SELECT 1\r\n            FROM public.usuarios_gestion_auditoria t\r\n            WHERE t.actor_id = p_objetivo_id\r\n               OR t.objetivo_id = p_objetivo_id\r\n        ),\r\n\r\n        'operaciones_eliminacion_como_actor',\r\n        EXISTS (\r\n            SELECT 1\r\n            FROM public.usuarios_eliminaciones_operaciones t\r\n            WHERE t.actor_id = p_objetivo_id\r\n        )\r\n    );\r\n\r\n    SELECT COALESCE(\r\n        bool_or(x.valor = 'true'::jsonb),\r\n        false\r\n    )\r\n    INTO v_tiene_otras\r\n    FROM jsonb_each(v_otras_referencias)\r\n        AS x(clave, valor);\r\n\r\n    -- Evaluación preliminar de alcance.\r\n    -- NO constituye autorización irreversible.\r\n    v_apto :=\r\n        v_auth_existe\r\n        AND v_habilitado IS TRUE\r\n        AND v_rol = 'Recepción'\r\n        AND public.es_rol_administrador(v_rol_id) IS FALSE\r\n        AND NULLIF(btrim(v_nombre), '') IS NOT NULL\r\n        AND v_snapshots_incorrectos = 0\r\n        AND v_storage = 0\r\n        AND v_mantenciones = 0\r\n        AND v_tareas = 0\r\n        AND NOT v_tiene_otras;\r\n\r\n    RETURN jsonb_build_object(\r\n        'resultado',\r\n            CASE\r\n                WHEN v_apto\r\n                THEN 'APTO_PARA_REVISION_FINAL'\r\n                ELSE 'FUERA_DEL_ALCANCE_RESTRINGIDO'\r\n            END,\r\n        'objetivo_id', p_objetivo_id,\r\n        'nombre', v_nombre,\r\n        'rol', v_rol,\r\n        'cuenta_auth_existe', v_auth_existe,\r\n        'apto_preliminar', v_apto,\r\n        'solicitudes_creadas', v_solicitudes,\r\n        'solicitudes_snapshot_incorrecto',\r\n            v_snapshots_incorrectos,\r\n        'avisos_asociados', v_avisos,\r\n        'objetos_storage', v_storage,\r\n        'mantenciones_asignadas', v_mantenciones,\r\n        'tareas_asignadas', v_tareas,\r\n        'otras_referencias_detectadas',\r\n            v_tiene_otras,\r\n        'detalle_otras_referencias',\r\n            v_otras_referencias,\r\n        'conservacion_historica_certificada',\r\n            false,\r\n        'cobertura_global_certificada',\r\n            false,\r\n        'eliminacion_habilitada',\r\n            false\r\n    );\r\nEND;\r\n$function$\n",
+          "propietario": "postgres",
+          "configuracion": [
+            "search_path=\"\""
+          ],
+          "security_definer": true,
+          "identidad_argumentos": "p_objetivo_id uuid"
+        },
+        {
+          "acl": "{postgres=X/postgres}",
+          "nombre": "usuario_eliminacion_finalizar_v1",
+          "esquema": "public",
+          "retorno": "jsonb",
+          "argumentos": "p_operacion_id uuid",
+          "definicion": "CREATE OR REPLACE FUNCTION public.usuario_eliminacion_finalizar_v1(p_operacion_id uuid)\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\r\nDECLARE\r\n    v_operacion\r\n        public.usuarios_eliminaciones_operaciones%ROWTYPE;\r\n\r\n    v_auditoria_id uuid;\r\nBEGIN\r\n\r\n    -- 1. Identificar la operación.\r\n    IF p_operacion_id IS NULL THEN\r\n        RAISE EXCEPTION 'OPERACION_ID_REQUERIDO';\r\n    END IF;\r\n\r\n    SELECT *\r\n    INTO v_operacion\r\n    FROM public.usuarios_eliminaciones_operaciones\r\n    WHERE id = p_operacion_id\r\n    FOR UPDATE;\r\n\r\n    IF NOT FOUND THEN\r\n        RAISE EXCEPTION 'OPERACION_NO_ENCONTRADA';\r\n    END IF;\r\n\r\n    -- 2. Una operación completada no debe\r\n    -- generar otra auditoría.\r\n    IF v_operacion.estado = 'COMPLETADA' THEN\r\n\r\n        IF v_operacion.auditoria_id IS NULL THEN\r\n            RAISE EXCEPTION\r\n                'OPERACION_COMPLETADA_SIN_AUDITORIA';\r\n        END IF;\r\n\r\n        RETURN jsonb_build_object(\r\n            'resultado', 'YA_COMPLETADA',\r\n            'operacion_id', v_operacion.id,\r\n            'auditoria_id', v_operacion.auditoria_id\r\n        );\r\n    END IF;\r\n\r\n    -- 3. No finalizar desde PREPARADA,\r\n    -- AUTH_EN_CURSO ni REQUIERE_REVISION.\r\n    IF v_operacion.estado <> 'AUTH_ELIMINADA' THEN\r\n        RAISE EXCEPTION\r\n            'ESTADO_NO_PERMITE_FINALIZAR';\r\n    END IF;\r\n\r\n    -- 4. Exigir certificación histórica.\r\n    IF NOT (\r\n        v_operacion.dependencias_resumen\r\n        @> '{\"conservacion_historica_certificada\":true}'::jsonb\r\n    ) THEN\r\n        RAISE EXCEPTION\r\n            'CONSERVACION_HISTORICA_NO_CERTIFICADA';\r\n    END IF;\r\n\r\n    -- 5. Exigir autorización irreversible\r\n    -- registrada mediante el futuro\r\n    -- procedimiento SQL protegido.\r\n    IF NOT (\r\n        v_operacion.dependencias_resumen\r\n        @> '{\"autorizacion_irreversible_confirmada\":true}'::jsonb\r\n    ) THEN\r\n        RAISE EXCEPTION\r\n            'AUTORIZACION_IRREVERSIBLE_PENDIENTE';\r\n    END IF;\r\n\r\n    -- 6. Exigir confirmación registrada\r\n    -- de la verificación de Auth.\r\n    IF NOT (\r\n        v_operacion.dependencias_resumen\r\n        @> '{\"auth_eliminacion_verificada\":true}'::jsonb\r\n    ) THEN\r\n        RAISE EXCEPTION\r\n            'VERIFICACION_AUTH_PENDIENTE';\r\n    END IF;\r\n\r\n    -- 7. Comprobar que hubo intento\r\n    -- de eliminación registrado.\r\n    IF v_operacion.intentos_auth < 1 THEN\r\n        RAISE EXCEPTION\r\n            'INTENTO_AUTH_NO_REGISTRADO';\r\n    END IF;\r\n\r\n    -- 8. Confirmar ausencia de Auth.\r\n    IF EXISTS (\r\n        SELECT 1\r\n        FROM auth.users\r\n        WHERE id = v_operacion.objetivo_id\r\n    ) THEN\r\n        RAISE EXCEPTION\r\n            'CUENTA_AUTH_TODAVIA_EXISTE';\r\n    END IF;\r\n\r\n    -- 9. Confirmar ausencia del perfil.\r\n    IF EXISTS (\r\n        SELECT 1\r\n        FROM public.usuarios\r\n        WHERE id = v_operacion.objetivo_id\r\n    ) THEN\r\n        RAISE EXCEPTION\r\n            'PERFIL_USUARIO_TODAVIA_EXISTE';\r\n    END IF;\r\n\r\n    -- 10. Evitar una segunda auditoría\r\n    -- definitiva para la misma cuenta.\r\n    IF EXISTS (\r\n        SELECT 1\r\n        FROM public.del_registro_eliminaciones d\r\n        WHERE d.modulo = 'Administración de Usuarios'\r\n          AND d.entidad_tipo = 'usuario'\r\n          AND d.entidad_id = v_operacion.objetivo_id\r\n          AND d.accion = 'ELIMINACION_PERMANENTE'\r\n    ) THEN\r\n        RAISE EXCEPTION\r\n            'AUDITORIA_EXISTENTE_REQUIERE_REVISION';\r\n    END IF;\r\n\r\n    -- 11. Registrar la eliminación.\r\n    INSERT INTO public.del_registro_eliminaciones (\r\n        modulo,\r\n        entidad_tipo,\r\n        entidad_id,\r\n        entidad_referencia,\r\n        accion,\r\n        motivo,\r\n        dependencias_resumen,\r\n        ejecutado_por,\r\n        ejecutado_por_nombre_snapshot\r\n    )\r\n    VALUES (\r\n        'Administración de Usuarios',\r\n        'usuario',\r\n        v_operacion.objetivo_id,\r\n        v_operacion.objetivo_nombre_snapshot,\r\n        'ELIMINACION_PERMANENTE',\r\n        v_operacion.motivo,\r\n\r\n        v_operacion.dependencias_resumen\r\n        || jsonb_build_object(\r\n            'procedimiento',\r\n                'USUARIO_ELIMINACION_FINALIZAR_V1',\r\n            'operacion_id',\r\n                v_operacion.id,\r\n            'cuenta_auth_restante',\r\n                false,\r\n            'perfil_restante',\r\n                false\r\n        ),\r\n\r\n        v_operacion.actor_id,\r\n        v_operacion.actor_nombre_snapshot\r\n    )\r\n    RETURNING id INTO v_auditoria_id;\r\n\r\n    -- 12. Cerrar en la misma transacción.\r\n    UPDATE public.usuarios_eliminaciones_operaciones\r\n    SET\r\n        estado = 'COMPLETADA',\r\n        auditoria_id = v_auditoria_id,\r\n        ultimo_error_codigo = NULL,\r\n        updated_at = clock_timestamp()\r\n    WHERE id = v_operacion.id;\r\n\r\n    RETURN jsonb_build_object(\r\n        'resultado', 'COMPLETADA',\r\n        'operacion_id', v_operacion.id,\r\n        'auditoria_id', v_auditoria_id\r\n    );\r\n\r\nEND;\r\n$function$\n",
+          "propietario": "postgres",
+          "configuracion": [
+            "search_path=\"\""
+          ],
+          "security_definer": true,
+          "identidad_argumentos": "p_operacion_id uuid"
+        },
+        {
+          "acl": "{postgres=X/postgres}",
+          "nombre": "usuario_eliminacion_preparar_v1",
+          "esquema": "public",
+          "retorno": "jsonb",
+          "argumentos": "p_objetivo_id uuid, p_nombre_exacto text, p_motivo text, p_confirmacion boolean",
+          "definicion": "CREATE OR REPLACE FUNCTION public.usuario_eliminacion_preparar_v1(p_objetivo_id uuid, p_nombre_exacto text, p_motivo text, p_confirmacion boolean)\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\r\nDECLARE\r\n    v_actor_id uuid;\r\n    v_actor_nombre text;\r\n\r\n    v_objetivo_nombre text;\r\n    v_objetivo_rol uuid;\r\n    v_objetivo_estado boolean;\r\n\r\n    v_administradores integer;\r\n    v_archivos integer;\r\n\r\n    v_operacion_id uuid;\r\n    v_existente\r\n        public.usuarios_eliminaciones_operaciones%ROWTYPE;\r\n\r\n    v_resumen jsonb;\r\nBEGIN\r\n\r\n    -- 1. Validar la identidad real.\r\n    v_actor_id := auth.uid();\r\n\r\n    IF v_actor_id IS NULL THEN\r\n        RAISE EXCEPTION 'SESION_REQUERIDA';\r\n    END IF;\r\n\r\n    IF NOT public.es_administrador_permanente_actual()\r\n    THEN\r\n        RAISE EXCEPTION\r\n            'ADMINISTRADOR_PERMANENTE_REQUERIDO';\r\n    END IF;\r\n\r\n    SELECT NULLIF(btrim(u.nombre), '')\r\n    INTO v_actor_nombre\r\n    FROM public.usuarios u\r\n    WHERE u.id = v_actor_id\r\n      AND u.estado IS TRUE;\r\n\r\n    IF v_actor_nombre IS NULL THEN\r\n        RAISE EXCEPTION\r\n            'IDENTIDAD_ADMINISTRADOR_INCOMPLETA';\r\n    END IF;\r\n\r\n    -- 2. Validar parámetros.\r\n    IF p_objetivo_id IS NULL THEN\r\n        RAISE EXCEPTION 'USUARIO_OBJETIVO_REQUERIDO';\r\n    END IF;\r\n\r\n    IF p_objetivo_id = v_actor_id THEN\r\n        RAISE EXCEPTION 'AUTOELIMINACION_PROHIBIDA';\r\n    END IF;\r\n\r\n    IF p_confirmacion IS DISTINCT FROM TRUE THEN\r\n        RAISE EXCEPTION 'CONFIRMACION_REQUERIDA';\r\n    END IF;\r\n\r\n    IF p_nombre_exacto IS NULL\r\n       OR btrim(p_nombre_exacto) = ''\r\n    THEN\r\n        RAISE EXCEPTION 'NOMBRE_EXACTO_REQUERIDO';\r\n    END IF;\r\n\r\n    IF p_motivo IS NULL\r\n       OR length(p_motivo) NOT BETWEEN 10 AND 1000\r\n       OR p_motivo <> btrim(p_motivo)\r\n    THEN\r\n        RAISE EXCEPTION 'MOTIVO_INVALIDO';\r\n    END IF;\r\n\r\n    -- 3. Confirmar existencia en Auth.\r\n    IF NOT EXISTS (\r\n        SELECT 1\r\n        FROM auth.users a\r\n        WHERE a.id = p_objetivo_id\r\n    ) THEN\r\n        RAISE EXCEPTION 'CUENTA_AUTH_NO_EXISTE';\r\n    END IF;\r\n\r\n    -- 4. Bloquear el perfil durante la preparación.\r\n    SELECT\r\n        NULLIF(btrim(u.nombre), ''),\r\n        u.rol_id,\r\n        u.estado\r\n    INTO\r\n        v_objetivo_nombre,\r\n        v_objetivo_rol,\r\n        v_objetivo_estado\r\n    FROM public.usuarios u\r\n    WHERE u.id = p_objetivo_id\r\n    FOR UPDATE;\r\n\r\n    IF NOT FOUND THEN\r\n        RAISE EXCEPTION 'PERFIL_NO_EXISTE';\r\n    END IF;\r\n\r\n    IF v_objetivo_nombre IS NULL THEN\r\n        RAISE EXCEPTION 'NOMBRE_OBJETIVO_INCOMPLETO';\r\n    END IF;\r\n\r\n    -- Comparación exacta, sin normalizar.\r\n    IF p_nombre_exacto IS DISTINCT FROM v_objetivo_nombre\r\n    THEN\r\n        RAISE EXCEPTION 'NOMBRE_NO_COINCIDE';\r\n    END IF;\r\n\r\n    -- 5. Proteger al último administrador.\r\n    IF v_objetivo_estado IS TRUE\r\n       AND v_objetivo_rol IS NOT NULL\r\n       AND public.es_rol_administrador(\r\n           v_objetivo_rol\r\n       )\r\n    THEN\r\n\r\n        SELECT COUNT(*)\r\n        INTO v_administradores\r\n        FROM public.usuarios u\r\n        WHERE u.estado IS TRUE\r\n          AND public.es_rol_administrador(u.rol_id);\r\n\r\n        IF v_administradores <= 1 THEN\r\n            RAISE EXCEPTION\r\n                'ULTIMO_ADMINISTRADOR_PROTEGIDO';\r\n        END IF;\r\n\r\n    END IF;\r\n\r\n    -- 6. Bloquear cuentas con objetos Storage.\r\n    SELECT COUNT(*)\r\n    INTO v_archivos\r\n    FROM storage.objects o\r\n    WHERE o.owner_id = p_objetivo_id::text\r\n       OR o.owner = p_objetivo_id;\r\n\r\n    IF v_archivos > 0 THEN\r\n        RAISE EXCEPTION\r\n            'STORAGE_REQUIERE_REVISION';\r\n    END IF;\r\n\r\n    -- 7. Bloquear asignaciones activas.\r\n    IF EXISTS (\r\n        SELECT 1\r\n        FROM public.mantenciones m\r\n        WHERE m.responsable_id = p_objetivo_id\r\n    ) THEN\r\n        RAISE EXCEPTION\r\n            'MANTENCIONES_ASIGNADAS_REQUIEREN_REVISION';\r\n    END IF;\r\n\r\n    IF EXISTS (\r\n        SELECT 1\r\n        FROM public.tareas t\r\n        WHERE t.responsable_id = p_objetivo_id\r\n    ) THEN\r\n        RAISE EXCEPTION\r\n            'TAREAS_ASIGNADAS_REQUIEREN_REVISION';\r\n    END IF;\r\n\r\n    -- 8. Documentar las dependencias conocidas.\r\n    -- Los conteos no certifican aún la\r\n    -- conservación histórica integral.\r\n    v_resumen := jsonb_build_object(\r\n\r\n        'solicitudes_creadas',\r\n        (\r\n            SELECT COUNT(*)\r\n            FROM public.solicitudes_reactivas s\r\n            WHERE s.creada_por = p_objetivo_id\r\n        ),\r\n\r\n        'avisos_asociados',\r\n        (\r\n            SELECT COUNT(*)\r\n            FROM public.solicitudes_reactivas_avisos a\r\n            WHERE EXISTS (\r\n                SELECT 1\r\n                FROM public.solicitudes_reactivas s\r\n                WHERE s.id = a.solicitud_id\r\n                  AND s.creada_por = p_objetivo_id\r\n            )\r\n        ),\r\n\r\n        'documentos_trabajadores',\r\n        (\r\n            SELECT COUNT(*)\r\n            FROM public.trabajadores_documentos d\r\n            WHERE d.creado_por = p_objetivo_id\r\n        ),\r\n\r\n        'documentos_prevencionista',\r\n        (\r\n            SELECT COUNT(*)\r\n            FROM public.prevencion_documentos d\r\n            WHERE d.creado_por = p_objetivo_id\r\n        ),\r\n\r\n        'archivos_storage',\r\n        v_archivos,\r\n\r\n        'conservacion_historica_certificada',\r\n        false,\r\n\r\n        'procedimiento_preparacion',\r\n        'USUARIO_ELIMINACION_PREPARAR_V1'\r\n    );\r\n\r\n    -- 9. Crear operación, respetando el índice\r\n    -- único de operaciones activas.\r\n    INSERT INTO public.usuarios_eliminaciones_operaciones (\r\n        objetivo_id,\r\n        objetivo_nombre_snapshot,\r\n        actor_id,\r\n        actor_nombre_snapshot,\r\n        motivo,\r\n        estado,\r\n        dependencias_resumen\r\n    )\r\n    VALUES (\r\n        p_objetivo_id,\r\n        v_objetivo_nombre,\r\n        v_actor_id,\r\n        v_actor_nombre,\r\n        p_motivo,\r\n        'PREPARADA',\r\n        v_resumen\r\n    )\r\n    ON CONFLICT (objetivo_id)\r\n    WHERE estado IN (\r\n        'PREPARADA',\r\n        'AUTH_EN_CURSO',\r\n        'AUTH_ELIMINADA',\r\n        'REQUIERE_REVISION'\r\n    )\r\n    DO NOTHING\r\n    RETURNING id INTO v_operacion_id;\r\n\r\n    -- 10. Resolver solicitudes repetidas.\r\n    IF v_operacion_id IS NULL THEN\r\n\r\n        SELECT *\r\n        INTO v_existente\r\n        FROM public.usuarios_eliminaciones_operaciones\r\n        WHERE objetivo_id = p_objetivo_id\r\n          AND estado IN (\r\n              'PREPARADA',\r\n              'AUTH_EN_CURSO',\r\n              'AUTH_ELIMINADA',\r\n              'REQUIERE_REVISION'\r\n          )\r\n        FOR UPDATE;\r\n\r\n        IF FOUND\r\n           AND v_existente.estado = 'PREPARADA'\r\n           AND v_existente.actor_id = v_actor_id\r\n           AND v_existente.motivo = p_motivo\r\n           AND v_existente.objetivo_nombre_snapshot\r\n               = v_objetivo_nombre\r\n        THEN\r\n            RETURN jsonb_build_object(\r\n                'resultado', 'YA_PREPARADA',\r\n                'operacion_id', v_existente.id,\r\n                'estado', v_existente.estado,\r\n                'eliminacion_habilitada', false\r\n            );\r\n        END IF;\r\n\r\n        RAISE EXCEPTION\r\n            'OPERACION_EXISTENTE_REQUIERE_REVISION';\r\n\r\n    END IF;\r\n\r\n    -- 11. No habilitar eliminación real.\r\n    RETURN jsonb_build_object(\r\n        'resultado', 'PREPARADA',\r\n        'operacion_id', v_operacion_id,\r\n        'estado', 'PREPARADA',\r\n        'eliminacion_habilitada', false,\r\n        'dependencias_resumen', v_resumen\r\n    );\r\n\r\nEND;\r\n$function$\n",
+          "propietario": "postgres",
+          "configuracion": [
+            "search_path=\"\""
+          ],
+          "security_definer": true,
+          "identidad_argumentos": "p_objetivo_id uuid, p_nombre_exacto text, p_motivo text, p_confirmacion boolean"
+        },
+        {
+          "acl": "{postgres=X/postgres}",
+          "nombre": "usuario_eliminacion_registrar_resultado_auth_v1",
+          "esquema": "public",
+          "retorno": "jsonb",
+          "argumentos": "p_operacion_id uuid, p_resultado text, p_error_codigo text DEFAULT NULL::text",
+          "definicion": "CREATE OR REPLACE FUNCTION public.usuario_eliminacion_registrar_resultado_auth_v1(p_operacion_id uuid, p_resultado text, p_error_codigo text DEFAULT NULL::text)\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\r\nDECLARE\r\n    v_operacion\r\n        public.usuarios_eliminaciones_operaciones%ROWTYPE;\r\n\r\n    v_codigo text;\r\nBEGIN\r\n    -- 1. Validar argumentos.\r\n    IF p_operacion_id IS NULL THEN\r\n        RAISE EXCEPTION 'OPERACION_ID_REQUERIDO';\r\n    END IF;\r\n\r\n    IF p_resultado IS NULL\r\n       OR p_resultado NOT IN ('CONFIRMADA', 'INCIERTA')\r\n    THEN\r\n        RAISE EXCEPTION 'RESULTADO_AUTH_INVALIDO';\r\n    END IF;\r\n\r\n    -- 2. Bloquear la operación para evitar\r\n    -- actualizaciones simultáneas.\r\n    SELECT *\r\n    INTO v_operacion\r\n    FROM public.usuarios_eliminaciones_operaciones\r\n    WHERE id = p_operacion_id\r\n    FOR UPDATE;\r\n\r\n    IF NOT FOUND THEN\r\n        RAISE EXCEPTION 'OPERACION_NO_ENCONTRADA';\r\n    END IF;\r\n\r\n    -- 3. Permitir consultar nuevamente un\r\n    -- resultado confirmado, sin modificarlo.\r\n    IF v_operacion.estado = 'AUTH_ELIMINADA'\r\n       AND p_resultado = 'CONFIRMADA'\r\n       AND v_operacion.dependencias_resumen\r\n           @> '{\"auth_eliminacion_verificada\":true}'::jsonb\r\n    THEN\r\n        RETURN jsonb_build_object(\r\n            'resultado', 'YA_CONFIRMADA',\r\n            'operacion_id', v_operacion.id,\r\n            'estado', v_operacion.estado\r\n        );\r\n    END IF;\r\n\r\n    -- 4. No aceptar resultados Auth si la\r\n    -- eliminación no fue iniciada formalmente.\r\n    IF v_operacion.estado <> 'AUTH_EN_CURSO' THEN\r\n        RAISE EXCEPTION\r\n            'ESTADO_NO_PERMITE_REGISTRAR_AUTH';\r\n    END IF;\r\n\r\n    -- 5. Registrar un resultado incierto\r\n    -- sin repetir ninguna eliminación.\r\n    IF p_resultado = 'INCIERTA' THEN\r\n\r\n        v_codigo := COALESCE(\r\n            p_error_codigo,\r\n            'RESULTADO_AUTH_INCIERTO'\r\n        );\r\n\r\n        -- Guardar solo códigos controlados,\r\n        -- nunca textos libres con secretos.\r\n        IF v_codigo !~\r\n           '^[A-Z][A-Z0-9_]{2,79}$'\r\n        THEN\r\n            RAISE EXCEPTION\r\n                'CODIGO_ERROR_INVALIDO';\r\n        END IF;\r\n\r\n        UPDATE public.usuarios_eliminaciones_operaciones\r\n        SET\r\n            estado = 'REQUIERE_REVISION',\r\n            ultimo_error_codigo = v_codigo,\r\n            updated_at = clock_timestamp()\r\n        WHERE id = v_operacion.id;\r\n\r\n        RETURN jsonb_build_object(\r\n            'resultado', 'REQUIERE_REVISION',\r\n            'operacion_id', v_operacion.id,\r\n            'estado', 'REQUIERE_REVISION'\r\n        );\r\n\r\n    END IF;\r\n\r\n    -- 6. Para confirmar Auth, exigir que\r\n    -- la ejecución estuviera autorizada.\r\n    IF NOT (\r\n        v_operacion.dependencias_resumen\r\n        @> '{\"conservacion_historica_certificada\":true}'::jsonb\r\n    ) THEN\r\n        RAISE EXCEPTION\r\n            'CONSERVACION_HISTORICA_NO_CERTIFICADA';\r\n    END IF;\r\n\r\n    IF NOT (\r\n        v_operacion.dependencias_resumen\r\n        @> '{\"autorizacion_irreversible_confirmada\":true}'::jsonb\r\n    ) THEN\r\n        RAISE EXCEPTION\r\n            'AUTORIZACION_IRREVERSIBLE_PENDIENTE';\r\n    END IF;\r\n\r\n    IF v_operacion.intentos_auth < 1 THEN\r\n        RAISE EXCEPTION\r\n            'INTENTO_AUTH_NO_REGISTRADO';\r\n    END IF;\r\n\r\n    -- 7. Verificar la ausencia de la cuenta.\r\n    IF EXISTS (\r\n        SELECT 1\r\n        FROM auth.users\r\n        WHERE id = v_operacion.objetivo_id\r\n    ) THEN\r\n        RAISE EXCEPTION\r\n            'CUENTA_AUTH_TODAVIA_EXISTE';\r\n    END IF;\r\n\r\n    IF EXISTS (\r\n        SELECT 1\r\n        FROM public.usuarios\r\n        WHERE id = v_operacion.objetivo_id\r\n    ) THEN\r\n        RAISE EXCEPTION\r\n            'PERFIL_USUARIO_TODAVIA_EXISTE';\r\n    END IF;\r\n\r\n    -- 8. Registrar la verificación\r\n    -- y actualizar el estado conjuntamente.\r\n    UPDATE public.usuarios_eliminaciones_operaciones\r\n    SET\r\n        estado = 'AUTH_ELIMINADA',\r\n\r\n        dependencias_resumen =\r\n            dependencias_resumen\r\n            || jsonb_build_object(\r\n                'auth_eliminacion_verificada', true,\r\n                'auth_verificada_en',\r\n                    clock_timestamp()\r\n            ),\r\n\r\n        ultimo_error_codigo = NULL,\r\n        updated_at = clock_timestamp()\r\n\r\n    WHERE id = v_operacion.id;\r\n\r\n    RETURN jsonb_build_object(\r\n        'resultado', 'AUTH_ELIMINADA',\r\n        'operacion_id', v_operacion.id,\r\n        'estado', 'AUTH_ELIMINADA'\r\n    );\r\n\r\nEND;\r\n$function$\n",
+          "propietario": "postgres",
+          "configuracion": [
+            "search_path=\"\""
+          ],
+          "security_definer": true,
+          "identidad_argumentos": "p_operacion_id uuid, p_resultado text, p_error_codigo text"
+        }
+      ],
+      "relaciones": [
+        {
+          "acl": "{postgres=arwdDxtm/postgres,service_role=Dxtm/postgres}",
+          "rls": true,
+          "nombre": "del_registro_eliminaciones",
+          "esquema": "public",
+          "indices": [
+            "CREATE UNIQUE INDEX del_registro_eliminaciones_pkey ON public.del_registro_eliminaciones USING btree (id)",
+            "CREATE UNIQUE INDEX del_restablecimiento_base_unico_idx ON public.del_registro_eliminaciones USING btree (entidad_id) WHERE ((modulo = 'Inventario'::text) AND (entidad_tipo = 'linea_base'::text) AND (accion = 'RESTABLECIMIENTO_LINEA_BASE'::text))",
+            "CREATE UNIQUE INDEX del_inventario_producto_permanente_unico_idx ON public.del_registro_eliminaciones USING btree (entidad_id) WHERE ((modulo = 'Inventario'::text) AND (entidad_tipo = 'producto'::text) AND (accion = 'ELIMINACION_PERMANENTE'::text))"
+          ],
+          "columnas": [
+            {
+              "tipo": "uuid",
+              "nombre": "id",
+              "default": "gen_random_uuid()",
+              "not_null": true
+            },
+            {
+              "tipo": "text",
+              "nombre": "modulo",
+              "default": null,
+              "not_null": true
+            },
+            {
+              "tipo": "text",
+              "nombre": "entidad_tipo",
+              "default": null,
+              "not_null": true
+            },
+            {
+              "tipo": "uuid",
+              "nombre": "entidad_id",
+              "default": null,
+              "not_null": true
+            },
+            {
+              "tipo": "text",
+              "nombre": "entidad_referencia",
+              "default": null,
+              "not_null": true
+            },
+            {
+              "tipo": "text",
+              "nombre": "accion",
+              "default": null,
+              "not_null": true
+            },
+            {
+              "tipo": "text",
+              "nombre": "motivo",
+              "default": null,
+              "not_null": true
+            },
+            {
+              "tipo": "jsonb",
+              "nombre": "dependencias_resumen",
+              "default": "'{}'::jsonb",
+              "not_null": true
+            },
+            {
+              "tipo": "uuid",
+              "nombre": "ejecutado_por",
+              "default": null,
+              "not_null": true
+            },
+            {
+              "tipo": "text",
+              "nombre": "ejecutado_por_nombre_snapshot",
+              "default": null,
+              "not_null": true
+            },
+            {
+              "tipo": "timestamp with time zone",
+              "nombre": "created_at",
+              "default": "now()",
+              "not_null": true
+            }
+          ],
+          "triggers": [
+            "CREATE TRIGGER trg_del_registro_eliminaciones_inmutable BEFORE DELETE OR UPDATE ON public.del_registro_eliminaciones FOR EACH ROW EXECUTE FUNCTION del_registro_eliminaciones_inmutable()"
+          ],
+          "politicas": null,
+          "propietario": "postgres",
+          "rls_forzada": false,
+          "restricciones": [
+            {
+              "nombre": "del_registro_eliminaciones_accion_check",
+              "definicion": "CHECK ((accion = ANY (ARRAY['ELIMINACION_PERMANENTE'::text, 'ANULACION'::text, 'RETIRO_OPERATIVO'::text, 'RESTABLECIMIENTO_LINEA_BASE'::text])))"
+            },
+            {
+              "nombre": "del_registro_eliminaciones_ejecutado_por_nombre_snapshot_check",
+              "definicion": "CHECK ((btrim(ejecutado_por_nombre_snapshot) <> ''::text))"
+            },
+            {
+              "nombre": "del_registro_eliminaciones_motivo_check",
+              "definicion": "CHECK (((length(btrim(motivo)) >= 10) AND (length(btrim(motivo)) <= 1000)))"
+            },
+            {
+              "nombre": "del_registro_eliminaciones_pkey",
+              "definicion": "PRIMARY KEY (id)"
+            }
+          ]
+        },
+        {
+          "acl": "{postgres=arwdDxtm/postgres,service_role=Dxtm/postgres,authenticated=r/postgres}",
+          "rls": true,
+          "nombre": "usuarios",
+          "esquema": "public",
+          "indices": [
+            "CREATE UNIQUE INDEX usuarios_pkey ON public.usuarios USING btree (id)",
+            "CREATE INDEX idx_usuarios_rol ON public.usuarios USING btree (rol_id)"
+          ],
+          "columnas": [
+            {
+              "tipo": "uuid",
+              "nombre": "id",
+              "default": null,
+              "not_null": true
+            },
+            {
+              "tipo": "uuid",
+              "nombre": "rol_id",
+              "default": null,
+              "not_null": false
+            },
+            {
+              "tipo": "character varying",
+              "nombre": "nombre",
+              "default": null,
+              "not_null": false
+            },
+            {
+              "tipo": "character varying",
+              "nombre": "email",
+              "default": null,
+              "not_null": false
+            },
+            {
+              "tipo": "boolean",
+              "nombre": "estado",
+              "default": "true",
+              "not_null": false
+            }
+          ],
+          "triggers": [
+            "CREATE TRIGGER usuarios_cambio_sesion AFTER UPDATE OF rol_id, estado ON public.usuarios FOR EACH ROW WHEN (((old.rol_id IS DISTINCT FROM new.rol_id) OR (old.estado IS DISTINCT FROM new.estado))) EXECUTE FUNCTION registrar_senal_cambio_sesion()"
+          ],
+          "politicas": [
+            {
+              "roles": [
+                "authenticated"
+              ],
+              "using": "(es_administrador_permanente_actual() AND (id <> auth.uid()))",
+              "nombre": "administrador_actualiza_usuarios",
+              "comando": "w",
+              "permisiva": true,
+              "with_check": "(es_administrador_permanente_actual() AND (id <> auth.uid()))"
+            },
+            {
+              "roles": [
+                "authenticated"
+              ],
+              "using": "es_administrador_permanente_actual()",
+              "nombre": "administrador_lee_todos_los_usuarios",
+              "comando": "r",
+              "permisiva": true,
+              "with_check": null
+            },
+            {
+              "roles": [
+                "authenticated"
+              ],
+              "using": "(auth.uid() = id)",
+              "nombre": "usuario_lee_su_perfil",
+              "comando": "r",
+              "permisiva": true,
+              "with_check": null
+            }
+          ],
+          "propietario": "postgres",
+          "rls_forzada": false,
+          "restricciones": [
+            {
+              "nombre": "usuarios_id_fkey",
+              "definicion": "FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE"
+            },
+            {
+              "nombre": "usuarios_pkey",
+              "definicion": "PRIMARY KEY (id)"
+            },
+            {
+              "nombre": "usuarios_rol_id_fkey",
+              "definicion": "FOREIGN KEY (rol_id) REFERENCES roles(id) ON DELETE SET NULL"
+            }
+          ]
+        },
+        {
+          "acl": "{postgres=arwdDxtm/postgres}",
+          "rls": true,
+          "nombre": "usuarios_eliminaciones_operaciones",
+          "esquema": "public",
+          "indices": [
+            "CREATE UNIQUE INDEX usuarios_eliminaciones_operaciones_pkey ON public.usuarios_eliminaciones_operaciones USING btree (id)",
+            "CREATE UNIQUE INDEX usuarios_eliminaciones_operaciones_auditoria_id_key ON public.usuarios_eliminaciones_operaciones USING btree (auditoria_id)",
+            "CREATE UNIQUE INDEX usuarios_eliminaciones_objetivo_activo_idx ON public.usuarios_eliminaciones_operaciones USING btree (objetivo_id) WHERE (estado = ANY (ARRAY['PREPARADA'::text, 'AUTH_EN_CURSO'::text, 'AUTH_ELIMINADA'::text, 'REQUIERE_REVISION'::text]))"
+          ],
+          "columnas": [
+            {
+              "tipo": "uuid",
+              "nombre": "id",
+              "default": "gen_random_uuid()",
+              "not_null": true
+            },
+            {
+              "tipo": "uuid",
+              "nombre": "objetivo_id",
+              "default": null,
+              "not_null": true
+            },
+            {
+              "tipo": "text",
+              "nombre": "objetivo_nombre_snapshot",
+              "default": null,
+              "not_null": true
+            },
+            {
+              "tipo": "uuid",
+              "nombre": "actor_id",
+              "default": null,
+              "not_null": true
+            },
+            {
+              "tipo": "text",
+              "nombre": "actor_nombre_snapshot",
+              "default": null,
+              "not_null": true
+            },
+            {
+              "tipo": "text",
+              "nombre": "motivo",
+              "default": null,
+              "not_null": true
+            },
+            {
+              "tipo": "text",
+              "nombre": "estado",
+              "default": "'PREPARADA'::text",
+              "not_null": true
+            },
+            {
+              "tipo": "jsonb",
+              "nombre": "dependencias_resumen",
+              "default": "'{}'::jsonb",
+              "not_null": true
+            },
+            {
+              "tipo": "integer",
+              "nombre": "intentos_auth",
+              "default": "0",
+              "not_null": true
+            },
+            {
+              "tipo": "text",
+              "nombre": "ultimo_error_codigo",
+              "default": null,
+              "not_null": false
+            },
+            {
+              "tipo": "uuid",
+              "nombre": "auditoria_id",
+              "default": null,
+              "not_null": false
+            },
+            {
+              "tipo": "timestamp with time zone",
+              "nombre": "created_at",
+              "default": "now()",
+              "not_null": true
+            },
+            {
+              "tipo": "timestamp with time zone",
+              "nombre": "updated_at",
+              "default": "now()",
+              "not_null": true
+            }
+          ],
+          "triggers": null,
+          "politicas": null,
+          "propietario": "postgres",
+          "rls_forzada": false,
+          "restricciones": [
+            {
+              "nombre": "usuarios_eliminaciones_auditoria_final",
+              "definicion": "CHECK (((estado = 'COMPLETADA'::text) = (auditoria_id IS NOT NULL)))"
+            },
+            {
+              "nombre": "usuarios_eliminaciones_dependencias_validas",
+              "definicion": "CHECK ((jsonb_typeof(dependencias_resumen) = 'object'::text))"
+            },
+            {
+              "nombre": "usuarios_eliminaciones_estado_valido",
+              "definicion": "CHECK ((estado = ANY (ARRAY['PREPARADA'::text, 'AUTH_EN_CURSO'::text, 'AUTH_ELIMINADA'::text, 'COMPLETADA'::text, 'REQUIERE_REVISION'::text])))"
+            },
+            {
+              "nombre": "usuarios_eliminaciones_intentos_validos",
+              "definicion": "CHECK ((intentos_auth >= 0))"
+            },
+            {
+              "nombre": "usuarios_eliminaciones_motivo_valido",
+              "definicion": "CHECK ((((length(motivo) >= 10) AND (length(motivo) <= 1000)) AND (motivo = btrim(motivo))))"
+            },
+            {
+              "nombre": "usuarios_eliminaciones_nombre_valido",
+              "definicion": "CHECK (((btrim(objetivo_nombre_snapshot) <> ''::text) AND (btrim(actor_nombre_snapshot) <> ''::text)))"
+            },
+            {
+              "nombre": "usuarios_eliminaciones_operaciones_auditoria_id_fkey",
+              "definicion": "FOREIGN KEY (auditoria_id) REFERENCES del_registro_eliminaciones(id) ON DELETE RESTRICT"
+            },
+            {
+              "nombre": "usuarios_eliminaciones_operaciones_auditoria_id_key",
+              "definicion": "UNIQUE (auditoria_id)"
+            },
+            {
+              "nombre": "usuarios_eliminaciones_operaciones_pkey",
+              "definicion": "PRIMARY KEY (id)"
+            },
+            {
+              "nombre": "usuarios_eliminaciones_sin_autoeliminacion",
+              "definicion": "CHECK ((actor_id <> objetivo_id))"
+            }
+          ]
+        }
+      ],
+      "funciones_no_encontradas": [],
+      "relaciones_no_encontradas": []
+    }
+  }
+]

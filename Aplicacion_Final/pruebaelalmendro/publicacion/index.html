@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="es" data-auth-page="app" class="h-full bg-slate-50 auth-pending">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>El Almendro | Gestión</title>
+  <link rel="icon" type="image/x-icon" href="./favicon-el-almendro.ico?v=web01b">
+  <style>
+    html.auth-pending body {
+      visibility: hidden;
+    }
+  </style>
+
+  <!-- Auth Guard & Tema Inmediato (Evita accesos no autorizados y parpadeo blanco) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.102.0"></script>
+  <script src="./js/config/supabaseClient.js"></script>
+  <script src="./js/controlSesion.js"></script>
+  <script>
+    (async function() {
+      // 1. S2B: Limpieza explícita de claves del antiguo auth mock.
+      //    Solo estas claves; NO se usa localStorage.clear() para no
+      //    afectar datos de otros módulos.
+      try {
+        localStorage.removeItem('hotel_auth_users');
+        localStorage.removeItem('hotel_session');
+        localStorage.removeItem('hotel_admin_pin');
+        sessionStorage.removeItem('hotel_admin_verified');
+      } catch (e) { /* almacenamiento no disponible */ }
+
+      // 3. Tema: aplicar modo oscuro de inmediato si está configurado
+      const savedTheme = localStorage.getItem('hotel_theme') || 'light';
+      if (savedTheme === 'dark' || (savedTheme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    })();
+  </script>
+
+  <!-- Utilidades Tailwind locales, generadas para producción. -->
+  <link rel="stylesheet" href="./css/tailwind.css">
+
+  <!-- Estilos Modulares Personalizados -->
+  <link rel="stylesheet" href="./css/styles.css">
+  <link rel="stylesheet" href="./css/ui-system.css">
+</head>
+
+<body
+  class="h-full flex overflow-hidden bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 antialiased selection:bg-blue-100 dark:selection:bg-blue-900 selection:text-blue-900 dark:selection:text-blue-100">
+
+  <!-- ==================== CONTENEDOR PRINCIPAL ==================== -->
+  <div id="app" class="flex w-full h-full relative">
+
+    <!-- BACKDROP PARA SIDEBAR MÓVIL -->
+    <div id="sidebar-backdrop" onclick="toggleMobileSidebar(false)"
+      class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-30 md:hidden transition-opacity"></div>
+
+    <!-- BARRA LATERAL (SIDEBAR RESPONSIVA) -->
+    <aside id="sidebar"
+      class="fixed md:static inset-y-0 left-0 -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out w-72 md:w-64 bg-slate-900 text-slate-300 flex flex-col flex-shrink-0 border-r border-slate-800 z-40 shadow-2xl md:shadow-none">
+
+      <!-- Header Logo / Hotel Brand -->
+      <div class="p-5 border-b border-slate-800 bg-slate-950/60 flex items-center justify-between">
+        <div class="flex items-center space-x-3 cursor-pointer" style="min-width:0" onclick="navigateTo('dashboard')">
+          <div
+            style="flex-shrink:0" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-300 flex items-center justify-center text-slate-950 font-bold text-xl shadow-lg shadow-amber-500/20">
+            <svg xmlns="http://www.w3.org/2000/svg" width="1.15em" height="1.15em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 22v-6.57M12 11h.01M12 7h.01M14 15.43V22M15 16a5 5 0 0 0-6 0M16 11h.01M16 7h.01M8 11h.01M8 7h.01"/><rect x="4" y="2" width="16" height="20" rx="2"/></svg>
+          </div>
+          <div>
+            <h1 class="font-bold text-white text-base leading-tight">El Almendro</h1>
+            <p class="text-xs text-amber-400 font-medium" style="line-height:1.4">Hotel &amp; Centro de Eventos</p>
+          </div>
+        </div>
+        <!-- Botón cerrar menú en pantallas móviles -->
+        <button onclick="toggleMobileSidebar(false)" class="md:hidden text-slate-400 hover:text-white p-1 rounded-lg text-lg leading-none" title="Cerrar Menú">
+          ✕
+        </button>
+      </div>
+
+      <!-- Menú de Navegación Lateral -->
+      <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto custom-scrollbar">
+        <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-3 pt-2 pb-1">Principal</div>
+
+        <button onclick="navigateTo('dashboard')" id="nav-dashboard"
+          class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors bg-blue-600/20 text-blue-400 border border-blue-500/30">
+          <span class="text-lg">📊</span>
+          <span>Inicio / Dashboard</span>
+        </button>
+
+        <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-3 pt-4 pb-1">Operaciones</div>
+
+        <button onclick="navigateTo('mantenciones')" id="nav-mantenciones"
+          class="nav-item w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors hover:bg-slate-800 hover:text-white">
+          <div class="flex items-center space-x-3">
+            <span class="text-lg">🔧</span>
+            <span>Mantención General</span>
+          </div>
+          <span id="badge-nav-mantenciones"
+            class="hidden bg-blue-900/80 text-blue-300 text-xs font-semibold px-2 py-0.5 rounded-full"></span>
+        </button>
+
+
+        <button onclick="navigateTo('areas', 'workarea_reactiva')" id="nav-reactiva" data-view="areas" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors hover:bg-slate-800 hover:text-white"><span class="text-lg">⚡</span><span>Mantención Reactiva</span></button>
+        <button onclick="navigateTo('mejoras')" id="nav-mejoras"
+          class="nav-item w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors hover:bg-slate-800 hover:text-white">
+          <div class="flex items-center space-x-3">
+            <span class="text-lg">🌿</span>
+            <span>Mejoras / Obras</span>
+          </div>
+          <span id="badge-nav-mejoras"
+            class="hidden bg-emerald-900/80 text-emerald-300 text-xs font-semibold px-2 py-0.5 rounded-full"></span>
+        </button>
+
+        <button onclick="navigateTo('remodelaciones')" id="nav-remodelaciones"
+          class="nav-item w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors hover:bg-slate-800 hover:text-white">
+          <div class="flex items-center space-x-3">
+            <span class="text-lg">🏗️</span>
+            <span>Remodelaciones</span>
+          </div>
+          <span id="badge-nav-remodelaciones"
+            class="hidden bg-purple-900/80 text-purple-300 text-xs font-semibold px-2 py-0.5 rounded-full"></span>
+        </button>
+
+
+        <button onclick="openAreaMaquinas()" id="nav-maquinas" data-view="areas" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium text-left whitespace-nowrap transition-colors hover:bg-slate-800 hover:text-white"><span class="text-lg">⚙️</span><span>Mantención de Máquinas</span></button>
+
+        <button onclick="openAreaJardineria()" id="nav-jardineria" data-view="areas" class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium text-left min-w-0 transition-colors hover:bg-slate-800 hover:text-white"><span class="text-lg shrink-0" aria-hidden="true">🌳</span><span class="min-w-0 truncate" title="Mantención de Jardinería">Mantención de Jardinería</span></button>
+
+        <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-3 pt-4 pb-1">Gestión & Control
+        </div>
+
+
+
+        <!-- INV-4: módulo principal Inventario (bodegas). Acceso según la
+             matriz aprobada: Administrador permanente, Administrador
+             temporal vigente y Técnico (ver js/state.js). -->
+        <button onclick="navigateTo('inventario')" id="nav-inventario"
+          class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors hover:bg-slate-800 hover:text-white">
+          <span class="text-lg">📦</span>
+          <span>Inventario</span>
+        </button>
+
+
+
+        <button onclick="navigateTo('trabajadores')" id="nav-trabajadores"
+          class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors hover:bg-slate-800 hover:text-white">
+          <span class="text-lg">👥</span>
+          <span>Trabajadores</span>
+        </button>
+
+        <!-- Prevencionista: planificación y documentación preventiva. -->
+        <button onclick="navigateTo('prevencionista')" id="nav-prevencionista"
+          class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors hover:bg-slate-800 hover:text-white">
+          <span class="text-lg">📋</span>
+          <span>Prevencionista</span>
+        </button>
+
+        <button type="button" onclick="navigateTo('tareas-pendientes')" id="nav-tareas-pendientes"
+          class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors hover:bg-slate-800 hover:text-white">
+          <span class="text-lg" aria-hidden="true">✅</span>
+          <span>Gestión de Tareas</span>
+        </button>
+
+        <button onclick="navigateTo('gantt')" id="nav-gantt"
+          class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors hover:bg-slate-800 hover:text-white">
+          <span class="text-lg">📈</span>
+          <span>Línea de Tiempo / Gantt</span>
+        </button>
+
+        <button onclick="navigateTo('solicitudes')" id="nav-solicitudes"
+          class="nav-item w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors hover:bg-slate-800 hover:text-white">
+          <div class="flex items-center space-x-3">
+            <span class="text-lg">📩</span>
+            <span>Solicitudes</span>
+          </div>
+          <span id="badge-nav-solicitudes"
+            class="hidden bg-rose-900/80 text-rose-300 text-xs font-semibold px-2 py-0.5 rounded-full"></span>
+        </button>
+
+        <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-3 pt-4 pb-1">Sistema</div>
+
+        <button onclick="navigateTo('notificaciones')" id="nav-notificaciones"
+          class="nav-item w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors hover:bg-slate-800 hover:text-white">
+          <div class="flex items-center space-x-3">
+            <span class="text-lg">🔔</span>
+            <span>Notificaciones</span>
+          </div>
+          <span id="badge-nav-notif-count"
+            class="hidden bg-amber-500 text-slate-950 text-xs font-bold px-2 py-0.5 rounded-full"></span>
+        </button>
+
+        <button onclick="navigateTo('importar')" id="nav-importar"
+          class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors hover:bg-slate-800 hover:text-white">
+          <span class="text-lg">📥</span>
+          <span>Importar Excel / CSV</span>
+        </button>
+
+        <button onclick="navigateTo('configuracion')" id="nav-configuracion"
+          class="nav-item w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors hover:bg-slate-800 hover:text-white">
+          <span class="text-lg">⚙️</span>
+          <span>Configuración</span>
+        </button>
+
+        <button onclick="navigateTo('admin')" id="nav-admin"
+          class="nav-item w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors hover:bg-slate-800 hover:text-white">
+          <div class="flex items-center space-x-3">
+            <span class="text-lg">🛡️</span>
+            <span>Panel de Admin</span>
+          </div>
+        </button>
+      </nav>
+
+      <!-- User Active Indicator / Switcher & Logout -->
+      <div class="p-3 border-t border-slate-800 bg-slate-950/80">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2.5 overflow-hidden">
+            <div id="sidebar-user-avatar"
+              class="w-9 h-9 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-lg flex-shrink-0">
+              👤
+            </div>
+            <div class="truncate">
+              <p id="sidebar-user-name" class="text-xs font-semibold text-white truncate">—</p>
+              <p id="sidebar-user-role" class="text-[10px] text-blue-400 font-medium truncate uppercase">—</p>
+              <!-- S3C-2C: distintivo discreto de Administrador temporal.
+                   El rol PERMANENTE de arriba NUNCA cambia. Oculto por
+                   defecto; lo muestra/oculta syncCurrentUserUI() cuando
+                   el backend reporta una delegación vigente. -->
+              <p id="sidebar-admin-temporal"
+                class="hidden text-[10px] text-amber-400 font-bold truncate uppercase tracking-wide">
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center space-x-1">
+            <button onclick="handleLogout()" title="Cerrar sesión" aria-label="Cerrar sesión"
+              class="p-2 rounded-lg bg-slate-800 hover:bg-rose-950/80 hover:text-rose-400 text-slate-300 text-xs transition-colors flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="1.15em" height="1.15em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ÁREA DE CONTENIDO PRINCIPAL -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden bg-slate-100 dark:bg-slate-950">
+
+      <!-- BARRA SUPERIOR (TOPBAR RESPONSIVA) -->
+      <header id="topbar" class="min-h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-3 sm:px-6 py-2 flex flex-wrap items-center justify-between gap-2 flex-shrink-0 z-10 transition-colors">
+        <!-- Breadcrumb / Título dinámico -->
+        <div class="flex items-center space-x-2 sm:space-x-4 min-w-0">
+          <!-- Botón Hamburguesa para Móvil -->
+          <button onclick="toggleMobileSidebar()" class="md:hidden p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 flex-shrink-0" title="Abrir Menú">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          <div id="page-icon" class="text-xl sm:text-2xl flex-shrink-0"><svg xmlns="http://www.w3.org/2000/svg" width="1.15em" height="1.15em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 22v-6.57M12 11h.01M12 7h.01M14 15.43V22M15 16a5 5 0 0 0-6 0M16 11h.01M16 7h.01M8 11h.01M8 7h.01"/><rect x="4" y="2" width="16" height="20" rx="2"/></svg></div>
+          <div class="truncate">
+            <h2 id="page-title" class="text-sm sm:text-lg font-bold text-slate-800 dark:text-white leading-tight truncate">Panel Principal - Hotel El Almendro</h2>
+            <p id="page-subtitle" class="text-xs text-slate-500 dark:text-slate-400 truncate hidden sm:block">Vista general de mantenciones, proyectos activos y equipamiento</p>
+          </div>
+        </div>
+
+        <!-- Acciones rápidas & Perfil -->
+        <div class="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
+
+          <!-- Indicador de Usuario Autenticado (Pill con Avatar, Nombre y Rol) -->
+          <div class="flex items-center space-x-2 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-1.5 rounded-xl text-xs font-medium text-slate-700 dark:text-slate-200 shadow-sm">
+            <span id="topbar-user-avatar" class="text-sm">👤</span>
+            <span id="topbar-user-name" class="font-bold text-slate-800 dark:text-slate-200 hidden sm:inline">—</span>
+            <span class="text-slate-400 dark:text-slate-500 hidden sm:inline">•</span>
+            <span id="topbar-role-badge"
+              class="bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 font-bold px-2 py-0.5 rounded-md text-xs border border-blue-200 dark:border-blue-800/60">—</span>
+            <!-- S3C-2C: distintivo de Administrador temporal (topbar).
+                 Oculto por defecto; lo controla syncCurrentUserUI(). -->
+            <span id="topbar-admin-temporal-badge"
+              class="hidden bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 font-bold px-2 py-0.5 rounded-md text-[10px] border border-amber-200 dark:border-amber-800/60 whitespace-nowrap">
+            </span>
+          </div>
+
+          <!-- Cerrar sesión: mismo controlador Supabase -->
+          <button id="btn-topbar-logout" onclick="handleLogout()" title="Cerrar sesión"
+            class="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-rose-50 dark:bg-slate-800 dark:hover:bg-rose-950/50 border border-slate-200 dark:border-slate-700 hover:border-rose-200 dark:hover:border-rose-900/60 text-slate-700 hover:text-rose-600 dark:text-slate-300 dark:hover:text-rose-400 text-xs font-bold transition-all shadow-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" width="1.15em" height="1.15em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+            <span class="whitespace-nowrap">Cerrar sesión</span>
+          </button>
+
+          <!-- Campana de Notificaciones -->
+          <div class="relative">
+            <button id="btn-notification-dropdown" onclick="AvisosSolicitudes.abrirCampana()" aria-label="Abrir Notificaciones" aria-controls="notification-dropdown"
+              class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-white relative transition-colors">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+              </svg>
+              <span id="topbar-notif-badge" style="display:none;position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 4px;align-items:center;justify-content:center;border-radius:999px;background:#e11d48;color:white;font-size:10px;font-weight:700" aria-hidden="true"></span>
+            </button>
+
+            <!-- Dropdown Notificaciones Rápido -->
+            <div id="notification-dropdown" onclick="event.stopPropagation()"
+              class="alm-ui hidden absolute right-0 mt-2 w-80 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 p-3 z-50" style="max-width:calc(100vw - 24px)">
+              <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-100 dark:border-slate-800">
+                <h4 class="font-bold text-xs text-slate-800 dark:text-white flex items-center space-x-1.5">
+                  <span>🔔</span>
+                  <span>Avisos del Sistema</span>
+                </h4>
+              </div>
+              <div id="topbar-notif-list" class="space-y-2 max-h-72 overflow-y-auto custom-scrollbar">
+                <!-- Rellenado dinámicamente -->
+              </div>
+              <div class="pt-2 mt-2 border-t border-slate-100 dark:border-slate-800 text-center">
+                <button onclick="navigateTo('notificaciones'); const n=document.getElementById('notification-dropdown'); if(n) n.classList.add('hidden');"
+                  class="text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400">Ver todas las notificaciones</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </header>
+
+      <!-- CONTENIDO DE VISTAS (SCROLLABLE) -->
+      <main id="view-container" class="alm-workspace flex-1 overflow-y-auto custom-scrollbar">
+        <!-- El contenido de la vista activa se renderiza aquí -->
+      </main>
+
+    </div>
+  </div>
+
+  <!-- ==================== MODALES DEL SISTEMA ==================== -->
+
+  <!-- 1. MODAL NUEVA SOLICITUD -->
+  <div id="modal-new-request" onclick="handleModalBackdropClick(event, 'modal-new-request')"
+    class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto cursor-pointer">
+    <div onclick="event.stopPropagation()" class="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl shadow-2xl max-w-xl w-full p-4 sm:p-6 border border-slate-200 dark:border-slate-800 transform transition-all cursor-default my-auto text-slate-800 dark:text-slate-100">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+        <div class="flex items-center space-x-3">
+          <div
+            class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-950/80 text-blue-600 dark:text-blue-400 flex items-center justify-center text-xl font-bold">
+            📩
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-slate-800 dark:text-white">Nueva Solicitud de Mantención u Obra</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Hotel & Centro de Eventos El Almendro</p>
+          </div>
+        </div>
+        <button onclick="closeModal('modal-new-request')"
+          class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 text-xl font-bold">&times;</button>
+      </div>
+
+      <form id="form-new-request" onsubmit="handleCreateRequest(event)" class="mt-4 space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Nombre / Título Breve de la Solicitud
+            *</label>
+          <input type="text" id="req-title" required placeholder="Ej: Aire acondicionado gotea agua en Habitación 204"
+            class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-slate-750">
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Área del Hotel *</label>
+            <select id="req-area" required
+              class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-slate-750">
+              <!-- Opciones generadas dinámicamente -->
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Ubicación Específica *</label>
+            <input type="text" id="req-location" required placeholder="Ej: Cabaña 4, Baño Suite, etc."
+              class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-slate-750">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Descripción del Problema o Necesidad
+            *</label>
+          <textarea id="req-description" rows="3" required
+            placeholder="Describe qué ocurre, cuándo comenzó o qué se necesita hacer..."
+            class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-slate-750"></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Nivel de Prioridad *</label>
+            <select id="req-priority"
+              class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="Baja">🟢 Baja (No urgente)</option>
+              <option value="Media" selected>🟡 Media (Atención normal)</option>
+              <option value="Alta">🟠 Alta (Afecta servicio o cliente)</option>
+              <option value="Crítica">🔴 Crítica (Urgencia inmediata)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Persona Solicitante *</label>
+            <input type="text" id="req-requester" required
+              class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-slate-750">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Fotografía o Evidencia (Opcional)</label>
+          <div
+            class="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-blue-500 rounded-xl p-4 text-center bg-slate-50 dark:bg-slate-800/50 transition-colors cursor-pointer">
+            <span class="text-2xl block mb-1">📷</span>
+            <p class="text-xs font-medium text-slate-700 dark:text-slate-300">Arrastra una imagen o haz clic para adjuntar foto</p>
+            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Soporta JPG, PNG hasta 10MB</p>
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end space-x-3">
+          <button type="button" onclick="closeModal('modal-new-request')"
+            class="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+            Cancelar
+          </button>
+          <button type="submit"
+            class="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-lg shadow-blue-600/30 transition-all">
+            Enviar Solicitud
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. MODAL CONVERSIÓN DE SOLICITUD -->
+  <div id="modal-convert-request" onclick="handleModalBackdropClick(event, 'modal-convert-request')"
+    class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto cursor-pointer">
+    <div onclick="event.stopPropagation()" class="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl shadow-2xl max-w-lg w-full p-4 sm:p-6 border border-slate-200 dark:border-slate-800 cursor-default my-auto text-slate-800 dark:text-slate-100">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+        <div class="flex items-center space-x-2.5">
+          <span class="text-2xl">⚡</span>
+          <div>
+            <h3 class="text-base font-bold text-slate-800 dark:text-white">Convertir Solicitud en Actividad</h3>
+            <p id="convert-req-title" class="text-xs text-slate-500 dark:text-slate-400 font-medium truncate max-w-sm"></p>
+          </div>
+        </div>
+        <button onclick="closeModal('modal-convert-request')"
+          class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 text-xl font-bold">&times;</button>
+      </div>
+
+      <div class="mt-4 space-y-3">
+        <p class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase">Selecciona el tipo de trabajo a generar:</p>
+
+        <div class="grid grid-cols-1 gap-2.5">
+          <button onclick="executeConversion('Preventiva')"
+            class="p-3.5 rounded-xl border-2 border-blue-200 dark:border-blue-900/60 hover:border-blue-600 hover:bg-blue-50/60 dark:hover:bg-blue-950/40 text-left flex items-center space-x-3 transition-all group">
+            <span class="text-2xl">🔧</span>
+            <div>
+              <p class="text-sm font-bold text-slate-800 dark:text-slate-200 group-hover:text-blue-600">Mantención Preventiva</p>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Trabajo periódico planificado de conservación</p>
+            </div>
+          </button>
+
+          <button onclick="executeConversion('Correctiva')"
+            class="p-3.5 rounded-xl border-2 border-amber-200 dark:border-amber-900/60 hover:border-amber-600 hover:bg-amber-50/60 dark:hover:bg-amber-950/40 text-left flex items-center space-x-3 transition-all group">
+            <span class="text-2xl">⚠️</span>
+            <div>
+              <p class="text-sm font-bold text-slate-800 dark:text-slate-200 group-hover:text-amber-600">Mantención Correctiva</p>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Reparación originada por una avería o falla</p>
+            </div>
+          </button>
+
+          <button onclick="executeConversion('Esporádica')"
+            class="p-3.5 rounded-xl border-2 border-purple-200 dark:border-purple-900/60 hover:border-purple-600 hover:bg-purple-50/60 dark:hover:bg-purple-950/40 text-left flex items-center space-x-3 transition-all group">
+            <span class="text-2xl">⚡</span>
+            <div>
+              <p class="text-sm font-bold text-slate-800 dark:text-slate-200 group-hover:text-purple-600">Mantención Esporádica</p>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Trabajo imprevisto puntual durante la operación</p>
+            </div>
+          </button>
+
+          <!-- FASE 4G-5B: deshabilitada temporalmente hasta implementar CRUD
+               real de proyectos de Mejora en Supabase (creación no autorizada
+               todavía; antes generaba mejoras ficticias en localStorage). -->
+          <button disabled aria-disabled="true"
+            class="p-3.5 rounded-xl border-2 border-slate-200 dark:border-slate-700/60 bg-slate-50 dark:bg-slate-800/40 opacity-60 cursor-not-allowed text-left flex items-center space-x-3 select-none">
+            <span class="text-2xl">🌿</span>
+            <div>
+              <p class="text-sm font-bold text-slate-500 dark:text-slate-400">Proyecto de Mejora</p>
+              <p class="text-xs font-bold text-slate-400 dark:text-slate-500">No disponible temporalmente — Próximamente</p>
+            </div>
+          </button>
+
+          <button onclick="executeConversion('Remodelacion')"
+            class="p-3.5 rounded-xl border-2 border-pink-200 dark:border-pink-900/60 hover:border-pink-600 hover:bg-pink-50/60 dark:hover:bg-pink-950/40 text-left flex items-center space-x-3 transition-all group">
+            <span class="text-2xl">🏗️</span>
+            <div>
+              <p class="text-sm font-bold text-slate-800 dark:text-slate-200 group-hover:text-pink-600">Remodelación de Espacio</p>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Intervención estructural o estética de recinto existente</p>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. MODAL DETALLE DE MANTENCIÓN -->
+  <div id="modal-maintenance-detail" onclick="handleModalBackdropClick(event, 'modal-maintenance-detail')"
+    class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-[70] flex items-center justify-center p-2 sm:p-4 overflow-y-auto cursor-pointer">
+    <div id="maintenance-modal-content" onclick="event.stopPropagation()"
+      class="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl shadow-2xl max-w-3xl w-full p-4 sm:p-6 border border-slate-200 dark:border-slate-800 max-h-[92vh] overflow-y-auto custom-scrollbar cursor-default my-auto text-slate-800 dark:text-slate-100">
+      <!-- Rellenado dinámicamente -->
+    </div>
+  </div>
+
+  <!-- 4. MODAL FICHA DE ACTIVO FIJO -->
+  <div id="modal-asset-detail" onclick="handleModalBackdropClick(event, 'modal-asset-detail')"
+    class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-[70] flex items-center justify-center p-2 sm:p-4 overflow-y-auto cursor-pointer">
+    <div id="asset-modal-content" onclick="event.stopPropagation()"
+      class="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl shadow-2xl max-w-4xl w-full p-4 sm:p-6 border border-slate-200 dark:border-slate-800 max-h-[92vh] overflow-y-auto custom-scrollbar cursor-default my-auto text-slate-800 dark:text-slate-100">
+      <!-- Rellenado dinámicamente -->
+    </div>
+  </div>
+
+  <!-- 5. MODAL DETALLE DE REMODELACIÓN & CALCULADORA DE MATERIALES -->
+  <div id="modal-renovation-detail" onclick="handleModalBackdropClick(event, 'modal-renovation-detail')"
+    class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-[70] flex items-center justify-center p-2 sm:p-4 overflow-y-auto cursor-pointer">
+    <div id="renovation-modal-content" onclick="event.stopPropagation()"
+      class="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl shadow-2xl max-w-3xl w-full p-4 sm:p-6 border border-slate-200 dark:border-slate-800 max-h-[92vh] overflow-y-auto custom-scrollbar cursor-default my-auto text-slate-800 dark:text-slate-100">
+      <!-- Rellenado dinámicamente -->
+    </div>
+  </div>
+
+  <!-- 6. MODAL DETALLE DE MEJORA / PROYECTO -->
+  <div id="modal-improvement-detail" onclick="handleModalBackdropClick(event, 'modal-improvement-detail')"
+    class="hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-[70] flex items-center justify-center p-2 sm:p-4 overflow-y-auto cursor-pointer">
+    <div id="improvement-modal-content" onclick="event.stopPropagation()"
+      class="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl shadow-2xl max-w-3xl w-full p-4 sm:p-6 border border-slate-200 dark:border-slate-800 max-h-[92vh] overflow-y-auto custom-scrollbar cursor-default my-auto text-slate-800 dark:text-slate-100">
+      <!-- Rellenado dinámicamente -->
+    </div>
+  </div>
+
+  <!-- 7. MODAL FICHA DETALLE DE ÁREA DE TRABAJO (REUTILIZABLE) -->
+  <div id="modal-area-detail" onclick="handleModalBackdropClick(event, 'modal-area-detail')"
+    class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4 overflow-y-auto cursor-pointer">
+    <div id="area-modal-content" onclick="event.stopPropagation()"
+      class="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl shadow-2xl max-w-4xl w-full p-4 sm:p-8 border border-slate-200 dark:border-slate-800 max-h-[92vh] overflow-y-auto custom-scrollbar cursor-default my-auto text-slate-800 dark:text-slate-100">
+      <!-- Rellenado dinámicamente -->
+    </div>
+  </div>
+
+  <!-- 9. MODAL CREAR / EDITAR USUARIO -->
+  <div id="modal-user-form" onclick="handleModalBackdropClick(event, 'modal-user-form')"
+    class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto cursor-pointer">
+    <div onclick="event.stopPropagation()" class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl max-w-md w-full p-5 sm:p-6 border border-slate-200 dark:border-slate-800 cursor-default my-auto">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+        <div class="flex items-center space-x-2.5">
+          <span class="text-2xl">👤</span>
+          <div>
+            <h3 id="user-form-modal-title" class="text-base font-bold text-slate-800 dark:text-white">Nuevo Colaborador del Hotel</h3>
+            <p id="user-form-modal-subtitle" class="text-xs text-slate-500 dark:text-slate-400">Asignación de credenciales y rol</p>
+          </div>
+        </div>
+        <button onclick="closeModal('modal-user-form')" class="text-slate-400 hover:text-slate-600 dark:hover:text-white p-1 text-xl font-bold">&times;</button>
+      </div>
+
+      <form id="form-user-management" onsubmit="handleUserFormSubmit(event)" class="mt-4 space-y-3.5">
+        <input type="hidden" id="uform-id">
+        <input type="hidden" id="uform-mode" value="nuevo">
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Nombre Completo *</label>
+          <input type="text" id="uform-name" required placeholder="Ej: Marcela Gómez"
+            class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <div id="uform-email-field">
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Correo Electrónico *</label>
+          <input type="email" id="uform-email" required placeholder="ej: marcela.gomez@elalmendro.cl"
+            class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5" id="uform-role-title-grid">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Rol en Sistema *</label>
+            <!-- FASE S3C-1C: las options se poblan EXCLUSIVAMENTE desde
+                 UsuariosService.getRoles() (public.roles). El option
+                 hardcodeado de S2B se eliminó: aquí NO hay catálogo
+                 fijo de roles ni UUIDs escritos a mano. -->
+            <select id="uform-role" required
+              class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-xs text-slate-900 dark:text-slate-100 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </select>
+          </div>
+          <div id="uform-title-field">
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Cargo / Departamento</label>
+            <input type="text" id="uform-title" placeholder="Ej: Recepción"
+              class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          </div>
+        </div>
+
+        <!-- FASE S3C-1D: nota discreta sobre el rol Administrador -->
+        <p id="uform-admin-note"
+          class="hidden rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 px-3 py-2 text-[11px] text-slate-500 dark:text-slate-400">
+          El acceso de Administrador se gestiona mediante un proceso de autorización independiente.
+        </p>
+
+        <!-- FASE S3C-1C: mensaje inline de error del formulario
+             (aprobación). Se reutiliza el mismo bloque para cualquier
+             modo del modal; nunca muestra UUIDs, SQL ni policies. -->
+        <div id="uform-error"
+          class="hidden rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/40 px-3 py-2 text-xs font-bold text-rose-700 dark:text-rose-300">
+        </div>
+
+        <!-- S3B-4: se eliminó el campo "Contraseña de Acceso"
+             (uform-password). Existía del antiguo CRUD mock: las
+             contraseñas reales NUNCA se gestionan desde el frontend
+             (Supabase Auth + invitación server-side, fase S3E). -->
+
+        <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end space-x-2.5">
+          <button type="button" onclick="closeModal('modal-user-form')"
+            class="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+            Cancelar
+          </button>
+          <button type="submit" id="uform-submit"
+            class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-lg shadow-blue-600/30 transition-all disabled:opacity-60 disabled:cursor-not-allowed">
+            <span id="uform-submit-label">Guardar Colaborador</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- S3C-2C: MODAL OTORGAR ADMINISTRACIÓN TEMPORAL -->
+  <!-- Sólo Administrador PERMANENTE puede abrirlo (lo decide la UI
+       con esAdminPermanenteActual() y lo decide el BACKEND dentro de
+       la RPC). Campos de fecha/hora locales de Chile; se convierten a
+       ISO-8601 UTC inequívoco antes de enviar. -->
+  <div id="modal-admin-temporal" onclick="handleModalBackdropClick(event, 'modal-admin-temporal')"
+    class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto cursor-pointer">
+    <div onclick="event.stopPropagation()" class="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl max-w-md w-full p-5 sm:p-6 border border-slate-200 dark:border-slate-800 cursor-default my-auto">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+        <div class="flex items-center space-x-2.5">
+          <span class="text-2xl">🛡️</span>
+          <div>
+            <h3 class="text-base font-bold text-slate-800 dark:text-white">Administración temporal</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Otorga privilegios administrativos por un período limitado</p>
+          </div>
+        </div>
+        <button onclick="closeModal('modal-admin-temporal')" class="text-slate-400 hover:text-slate-600 dark:hover:text-white p-1 text-xl font-bold">&times;</button>
+      </div>
+
+      <form id="form-admin-temporal" onsubmit="handleAdminTemporalSubmit(event)" class="mt-4 space-y-3.5">
+        <input type="hidden" id="atemp-id">
+
+        <!-- Datos de referencia (SOLO LECTURA, vienen de Supabase) -->
+        <div class="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 p-3 space-y-1.5">
+          <div class="flex items-center justify-between gap-3">
+            <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Usuario</span>
+            <span id="atemp-nombre" class="text-xs font-bold text-slate-800 dark:text-slate-100 text-right truncate">—</span>
+          </div>
+          <div class="flex items-center justify-between gap-3">
+            <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Correo</span>
+            <span id="atemp-email" class="text-xs text-slate-600 dark:text-slate-300 text-right truncate">—</span>
+          </div>
+          <div class="flex items-center justify-between gap-3">
+            <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">Rol permanente</span>
+            <span id="atemp-rol" class="text-xs font-bold text-slate-800 dark:text-slate-100 text-right">—</span>
+          </div>
+        </div>
+
+        <!-- Vigencia (hora local de Chile → se envía ISO-8601 UTC) -->
+        <div class="grid grid-cols-2 gap-2.5">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Vigente desde *</label>
+            <input type="date" id="atemp-desde-fecha" required
+              class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <input type="hidden" id="atemp-desde-hora">
+            <button type="button" id="atemp-desde-hora-boton" aria-haspopup="dialog" aria-label="Elegir hora vigente desde" onclick="adminAbrirSelectorHoraTemporal('desde')" class="mt-1.5 w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">Elegir hora</button>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Vigente hasta *</label>
+            <input type="date" id="atemp-hasta-fecha" required
+              class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <input type="hidden" id="atemp-hasta-hora">
+            <button type="button" id="atemp-hasta-hora-boton" aria-haspopup="dialog" aria-label="Elegir hora vigente hasta" onclick="adminAbrirSelectorHoraTemporal('hasta')" class="mt-1.5 w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500">Elegir hora</button>
+          </div>
+        </div>
+
+        <p class="text-[11px] text-slate-500 dark:text-slate-400">
+          ⏳ Hora de Chile (America/Santiago). Al vencer, el usuario vuelve
+          automáticamente a su rol permanente. La vigencia se calcula en el
+          servidor, no en este computador.
+        </p>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-1">Motivo (opcional)</label>
+          <textarea id="atemp-motivo" rows="2" maxlength="1000"
+            placeholder="Ej: Cobertura de vacaciones de fin de año"
+            class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-2.5 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+        </div>
+
+        <!-- Mensaje inline de error (nunca expone UUIDs, SQL ni policies) -->
+        <div id="atemp-error"
+          class="hidden rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/40 px-3 py-2 text-xs font-bold text-rose-700 dark:text-rose-300">
+        </div>
+
+        <p class="text-[11px] text-slate-500 dark:text-slate-400 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60 px-3 py-2">
+          Este usuario podrá administrar el sistema durante el período, pero
+          NO podrá otorgar ni revocar administraciones temporales.
+        </p>
+
+        <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end space-x-2.5">
+          <button type="button" onclick="closeModal('modal-admin-temporal')"
+            class="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+            Cancelar
+          </button>
+          <button type="submit" id="atemp-submit"
+            class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-lg shadow-blue-600/30 transition-all disabled:opacity-60 disabled:cursor-not-allowed">
+            <span id="atemp-submit-label">Otorgar acceso temporal</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 10. DRAWER LATERAL: GESTOR DE PERMISOS GRANULARES POR USUARIO -->
+  <div id="drawer-user-permissions" onclick="handleDrawerBackdropClick(event)"
+    class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[90] hidden transition-opacity duration-300 opacity-0">
+    <div id="drawer-user-permissions-panel" onclick="event.stopPropagation()"
+      class="absolute right-0 top-0 bottom-0 w-full max-w-2xl bg-white dark:bg-slate-900 shadow-2xl border-l border-slate-200 dark:border-slate-800 flex flex-col transform translate-x-full transition-transform duration-300 ease-in-out">
+      <!-- Rellenado dinámicamente -->
+    </div>
+  </div>
+
+  <!-- ==================== SCRIPTS MODULARES EN ORDEN ==================== -->
+  <script src="./js/state.js"></script>
+  <script src="./js/services/mantenciones.service.js"></script>
+  <script src="./js/services/historial.service.js"></script>
+  <script src="./js/services/mejoras.service.js"></script>
+  <script src="./js/services/trabajadores.service.js"></script>
+  <!-- FASE C1B-C: documentos reales de trabajadores
+       (bucket privado documentos-trabajadores + public.trabajadores_documentos) -->
+  <script src="./js/services/trabajadoresDocumentos.service.js"></script>
+  <!-- Usuarios y roles: public.usuarios / public.roles. -->
+  <script src="./js/services/usuarios.service.js"></script>
+  <!-- Documentos de Prevencionista: bucket privado y public.prevencion_documentos. -->
+
+
+
+  <script src="./js/services/prevencionDocumentos.service.js"></script>
+  <!-- INV-4: servicio del módulo Inventario
+       (RPC de lectura de A3: inventario_buscar_productos,
+       inventario_obtener_existencias, inventario_obtener_movimientos,
+       inventario_obtener_bodegas_historicas + SELECT permitido de
+       ubicaciones para el filtro de bodegas). -->
+  <script src="./js/services/inventario.service.js"></script>
+
+  <!-- C2P-4A: componente de presentación de Carta Gantt reutilizable
+       (sin servicios, sin Supabase, sin escrituras). Se carga ANTES de
+       las vistas que lo consumen (Mejoras y Prevencionista). -->
+  <script src="./js/components/ganttCarta.js"></script>
+  <script src="./js/components/calendarioMensual.js"></script>
+
+  <!-- Vistas Modulares -->
+  <script src="./js/views/dashboard.js"></script>
+  <script src="./js/views/mantenciones.js"></script>
+  <script src="./js/views/areas.js"></script>
+  <script src="./js/views/jardineriaArea.js"></script>
+  <script src="./js/views/trabajadores.js"></script>
+  <!-- INV-4: módulo principal Inventario (catálogo y fichas en modo
+       lectura). Depende de inventario.service.js (cargado arriba). -->
+  <script src="./js/views/inventario.js"></script>
+  <!-- Módulo principal Prevencionista. -->
+  <script src="./js/views/prevencionista.js"></script>
+  <script src="./js/services/ganttProyectos.service.js"></script>
+  <script src="./js/views/gantt.js"></script>
+  <script src="./js/views/mejoras.js"></script>
+  <script src="./js/services/remodelaciones.service.js"></script>
+  <script src="./js/views/remodelaciones.js"></script>
+  <script src="./js/services/solicitudes.service.js"></script>
+  <script src="./js/views/solicitudes.js"></script>
+  <script src="./js/services/tareasPendientes.service.js"></script>
+  <script src="./js/services/gestionTareas.service.js"></script>
+  <script src="./js/views/gestionTareas.js"></script>
+  <script src="./js/services/mantencionesReactivas.service.js"></script>
+  <script src="./js/views/reactiva.js"></script>
+  <script src="./js/views/notificaciones.js"></script>
+  <script src="./js/services/avisosSolicitudes.service.js"></script>
+  <script src="./js/avisosSolicitudes.js"></script>
+  <script src="./js/views/importar.js"></script>
+  <script src="./js/views/configuracion.js"></script>
+  <script src="./js/seguridadPersonal.js"></script>
+  <script src="./js/adminAcceso.js"></script>
+  <script src="./js/views/admin.js"></script>
+
+  <!-- FASE S3C-0D: pantalla única de cuenta pendiente de aprobación -->
+  <script src="./js/views/pendingAccount.js"></script>
+
+  <!-- Modales y Controlador de Aplicación -->
+  <script src="./js/modals.js"></script>
+  <script src="./js/app.js"></script>
+
+</body>
+
+</html>

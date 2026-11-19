@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es" data-auth-invitation="true">
+<head>
+  <meta charset="UTF-8">
+  <meta name="referrer" content="no-referrer">
+  <script>
+    window.hotelInvitationLink = { hash: location.hash, search: location.search };
+    history.replaceState(null, '', location.pathname);
+    try { if ((localStorage.getItem('hotel_theme') || 'dark') === 'dark') document.documentElement.classList.add('dark'); } catch (_) {}
+  </script>
+  <meta charset="UTF-8">
+  <style>html.auth-pending body { visibility: hidden; }</style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>El Almendro | Registro</title>
+  <link rel="icon" type="image/x-icon" href="./favicon-el-almendro.ico?v=web01b">
+
+  <!-- Utilidades Tailwind locales, generadas para producción. -->
+  <link rel="stylesheet" href="./css/tailwind.css">
+
+  <!-- Estilos Personalizados -->
+  <link rel="stylesheet" href="./css/styles.css">
+  <link rel="stylesheet" href="./css/ui-system.css">
+
+
+  
+</head>
+<body class="alm-ui alm-auth min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex items-center justify-center p-4">
+  <main class="alm-auth-card w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 space-y-4">
+    <div class="flex items-center justify-between gap-3"><span class="font-bold">El Almendro</span><button type="button" onclick="document.documentElement.classList.toggle('dark')" class="alm-auth-theme p-2 rounded-xl" aria-label="Alternar tema">☀ / ☾</button></div>
+    <p id="invitation-message" role="status" aria-live="polite" class="text-sm text-slate-600 dark:text-slate-300">Verificando invitación…</p>
+    <form id="invitation-form" onsubmit="completarRegistroInvitado(event)" class="space-y-4 hidden">
+          <div class="text-left mb-5">
+            <h2 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">Completar mi registro</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Completa tus datos; después, el Administrador deberá aprobar tu cuenta.</p>
+          </div>
+
+          <!-- Nombre Completo -->
+          <div>
+            <label for="invitation-name" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Nombre Completo
+            </label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-sm">👤</span>
+              <input type="text" id="invitation-name" autocomplete="name" required placeholder="ej: Marcela Gómez"
+                class="alm-field w-full pl-10 pr-3 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-slate-750 transition-all">
+            </div>
+          </div>
+
+          <!-- Correo Electrónico -->
+          <div>
+            <label for="invitation-email" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Correo Electrónico
+            </label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-sm">✉️</span>
+              <input type="email" id="invitation-email" readonly aria-readonly="true" aria-describedby="invitation-email-info" autocomplete="email" required placeholder="Correo de la invitación"
+                class="alm-field w-full pl-10 pr-3 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-not-allowed transition-all">
+            </div>
+            <p id="invitation-email-info" class="text-xs text-slate-500 dark:text-slate-400 mt-2">Correo verificado de tu invitación · No editable</p>
+          </div>
+
+          <div id="invitation-password-fields" class="space-y-4">
+          <!-- Contraseña -->
+          <div>
+            <label for="invitation-password" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Contraseña
+            </label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-sm">🔒</span>
+              <input type="password" id="invitation-password" autocomplete="new-password" required placeholder="••••••••"
+                autocomplete="new-password"
+                class="alm-field w-full pl-10 pr-11 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-slate-750 transition-all">
+              <button type="button" id="invitation-password-toggle" aria-pressed="false" onclick="alternarPasswordInvitado('invitation-password')"
+                class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                aria-label="Mostrar contraseña" aria-controls="invitation-password" aria-pressed="false"
+                title="Mostrar contraseña">
+                <span id="eye-invitation-password" class="flex items-center justify-center w-5 h-5">
+                  <svg data-eye-icon="show" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                  <svg data-eye-icon="hide" style="display:none" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                    <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path>
+                    <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c6.5 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"></path>
+                    <path d="M6.61 6.61A13.16 13.16 0 0 0 2 12s3.5 7 10 7a9.74 9.74 0 0 0 5.39-1.61"></path>
+                    <path d="m2 2 20 20"></path>
+                  </svg>
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Confirmar Contraseña -->
+          <div>
+            <label for="invitation-password-confirm" class="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+              Confirmar Contraseña
+            </label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-sm">🔐</span>
+              <input type="password" id="invitation-password-confirm" autocomplete="new-password" required placeholder="••••••••"
+                autocomplete="new-password"
+                class="alm-field w-full pl-10 pr-11 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-slate-750 transition-all">
+              <button type="button" id="invitation-password-confirm-toggle" aria-pressed="false" onclick="alternarPasswordInvitado('invitation-password-confirm')"
+                class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                aria-label="Mostrar contraseña" aria-controls="invitation-password-confirm" aria-pressed="false"
+                title="Mostrar contraseña">
+                <span id="eye-invitation-confirm" class="flex items-center justify-center w-5 h-5">
+                  <svg data-eye-icon="show" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                  <svg data-eye-icon="hide" style="display:none" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+                    <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path>
+                    <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c6.5 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"></path>
+                    <path d="M6.61 6.61A13.16 13.16 0 0 0 2 12s3.5 7 10 7a9.74 9.74 0 0 0 5.39-1.61"></path>
+                    <path d="m2 2 20 20"></path>
+                  </svg>
+                </span>
+              </button>
+            </div>
+          </div>
+
+          </div>
+          <!-- Botón de Envío -->
+          <button type="submit" id="invitation-save" disabled
+            class="alm-btn-primary w-full py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/40 transition-all flex items-center justify-center space-x-2">
+            <span>Completar mi registro</span>
+            <span>✓</span>
+          </button>
+        </form>
+    <form id="invitation-resume" class="hidden space-y-3" onsubmit="continuarRegistroInvitado(event)">
+      <h2 class="font-bold">Continuar un registro incompleto</h2>
+      <p class="text-sm text-slate-600 dark:text-slate-400">Solo si ya estableciste contraseña. Se comprobará que la cuenta sea una invitación pendiente; no se creará otra cuenta.</p>
+      <label for="invitation-resume-email" class="block text-sm font-bold">Correo para ingresar</label>
+      <input id="invitation-resume-email" type="email" autocomplete="email" required class="alm-field w-full px-3 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white" />
+      <label for="invitation-resume-password" class="block text-sm font-bold">Contraseña ya establecida</label>
+      <input id="invitation-resume-password" type="password" autocomplete="current-password" required class="alm-field w-full px-3 py-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white" />
+      <button id="invitation-resume-submit" type="submit" disabled class="alm-btn-primary w-full py-3 rounded-xl">Continuar registro</button>
+    </form>
+    <button id="invitation-back" type="button" onclick="volverDesdeInvitacion()" class="w-full py-2 text-sm font-bold text-blue-600 dark:text-blue-400">Volver a Ingresar</button>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.102.0"></script>
+  <script src="./js/config/supabaseClient.js"></script>
+  <script src="./js/registrar.js"></script>
+</body>
+</html>

@@ -1,0 +1,1632 @@
+{
+  "version": "375K29-inventario-estatico-v2",
+  "cobertura_certificada": false,
+  "referencias_sql_versionadas": [
+    "auth.users",
+    "public.administraciones_temporales",
+    "public.bodegas_inventariados",
+    "public.del_registro_eliminaciones",
+    "public.guia_contenido_auditoria",
+    "public.inventario_catalogo_auditoria",
+    "public.inventario_entradas_formatos",
+    "public.inventario_movimientos",
+    "public.inventario_movimientos_anulaciones",
+    "public.inventario_productos",
+    "public.jardineria_contenido_auditoria",
+    "public.mantencion_historial",
+    "public.mantencion_historial_anulaciones",
+    "public.mantenciones",
+    "public.mantenciones_operativas",
+    "public.mantenciones_operativas_anulaciones",
+    "public.mantenciones_reactivas",
+    "public.prevencion_documentos",
+    "public.prevencion_gantt_contenido_auditoria",
+    "public.roles",
+    "public.solicitudes_notificaciones_revision",
+    "public.solicitudes_reactivas",
+    "public.solicitudes_reactivas_avisos",
+    "public.solicitudes_reactivas_eliminaciones_auditoria",
+    "public.solicitudes_reactivas_eventos",
+    "public.tareas",
+    "public.trabajadores_documentos",
+    "public.usuarios",
+    "public.usuarios_eliminaciones_operaciones",
+    "public.usuarios_gestion_auditoria",
+    "storage.objects"
+  ],
+  "limite": "Búsqueda léxica: revisar alias, comentarios, SQL dinámico, Realtime, Storage, RPC y otras rutas no representadas. Rutas regeneradas solo desde JS raíz mediante herramienta existente (sin ejecutar su generador SQL); no certifica imports dinámicos, RLS, ACL, instalación o equivalencia del despliegue. El SELECT diagnóstico192 conservado NO fue regenerado ni ejecutado.",
+  "rutas": [
+    {
+      "archivo": "js/app.js",
+      "linea": 853,
+      "tipo": "tabla",
+      "nombre": "usuarios",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/app.js",
+      "linea": 889,
+      "tipo": "tabla",
+      "nombre": "roles",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/config/supabaseClient.js",
+      "linea": 78,
+      "tipo": "edge",
+      "nombre": "usuario-invitaciones",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/controlSesion.js",
+      "linea": 54,
+      "tipo": "tabla",
+      "nombre": "usuarios",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/registrar.js",
+      "linea": 46,
+      "tipo": "tabla",
+      "nombre": "usuarios",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/avisosSolicitudes.service.js",
+      "linea": 12,
+      "tipo": "rpc",
+      "nombre": "listar_avisos_solicitudes",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/avisosSolicitudes.service.js",
+      "linea": 26,
+      "tipo": "rpc",
+      "nombre": "marcar_aviso_solicitud",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/avisosSolicitudes.service.js",
+      "linea": 37,
+      "tipo": "tabla",
+      "nombre": "solicitudes_notificaciones_revision",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/avisosSolicitudes.service.js",
+      "linea": 55,
+      "tipo": "rpc",
+      "nombre": "marcar_notificacion_revision_leida",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/ganttProyectos.service.js",
+      "linea": 4,
+      "tipo": "rpc",
+      "nombre": "gantt_proyecto_leer",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/ganttProyectos.service.js",
+      "linea": 34,
+      "tipo": "rpc",
+      "nombre": null,
+      "dinamica": true,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/gestionTareas.service.js",
+      "linea": 82,
+      "tipo": "rpc",
+      "nombre": null,
+      "dinamica": true,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/gestionTareas.service.js",
+      "linea": 146,
+      "tipo": "rpc",
+      "nombre": "tareas_pendientes_consultar_v1",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/historial.service.js",
+      "linea": 142,
+      "tipo": "tabla",
+      "nombre": "mantencion_historial",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/historial.service.js",
+      "linea": 168,
+      "tipo": "tabla",
+      "nombre": "mantencion_historial_anulaciones",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/historial.service.js",
+      "linea": 243,
+      "tipo": "rpc",
+      "nombre": "mantencion_revisar_estado",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/historial.service.js",
+      "linea": 339,
+      "tipo": "rpc",
+      "nombre": "mantencion_registrar_evento",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/historial.service.js",
+      "linea": 426,
+      "tipo": "rpc",
+      "nombre": "mantencion_anular_historial",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/inventario.service.js",
+      "linea": 187,
+      "tipo": "rpc",
+      "nombre": null,
+      "dinamica": true,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/inventario.service.js",
+      "linea": 459,
+      "tipo": "tabla",
+      "nombre": "ubicaciones",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/inventario.service.js",
+      "linea": 805,
+      "tipo": "tabla",
+      "nombre": "movimientos_inventario",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 186,
+      "tipo": "tabla",
+      "nombre": null,
+      "dinamica": true,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 208,
+      "tipo": "tabla",
+      "nombre": "importaciones_excel",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 327,
+      "tipo": "tabla",
+      "nombre": "elementos_mantenibles",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 353,
+      "tipo": "tabla",
+      "nombre": "elementos_mantenibles",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 398,
+      "tipo": "tabla",
+      "nombre": "elementos_mantenibles",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 433,
+      "tipo": "tabla",
+      "nombre": "mantenciones",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 470,
+      "tipo": "tabla",
+      "nombre": "elementos_mantenibles",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 497,
+      "tipo": "tabla",
+      "nombre": "mantenciones",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 525,
+      "tipo": "tabla",
+      "nombre": "elementos_mantenibles",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 597,
+      "tipo": "tabla",
+      "nombre": "mantenciones_operativas",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 614,
+      "tipo": "tabla",
+      "nombre": "mantenciones_operativas_anulaciones",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 628,
+      "tipo": "tabla",
+      "nombre": "mantenciones_operativas_responsables",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 646,
+      "tipo": "rpc",
+      "nombre": "mantencion_responsables_consultar_v1",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 732,
+      "tipo": "rpc",
+      "nombre": null,
+      "dinamica": true,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 780,
+      "tipo": "rpc",
+      "nombre": "mantencion_registrar_mantencion_v3",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 822,
+      "tipo": "rpc",
+      "nombre": "mantencion_anular_mantencion",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 862,
+      "tipo": "tabla",
+      "nombre": "mantenciones",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 900,
+      "tipo": "tabla",
+      "nombre": "inventarios_elementos",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 925,
+      "tipo": "tabla",
+      "nombre": "bodegas_inventariados",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 943,
+      "tipo": "rpc",
+      "nombre": "bodega_registrar_inventariado",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 972,
+      "tipo": "tabla",
+      "nombre": "elementos_mantenibles",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 1027,
+      "tipo": "tabla",
+      "nombre": "elementos_mantenibles",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 1087,
+      "tipo": "tabla",
+      "nombre": "televisores_habitaciones",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 1114,
+      "tipo": "rpc",
+      "nombre": "ubicaciones_crear_v1",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 1131,
+      "tipo": "tabla",
+      "nombre": "ubicaciones",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 1141,
+      "tipo": "tabla",
+      "nombre": "ubicaciones",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 1153,
+      "tipo": "tabla",
+      "nombre": "televisores_habitaciones",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 1169,
+      "tipo": "rpc",
+      "nombre": null,
+      "dinamica": true,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 1194,
+      "tipo": "rpc",
+      "nombre": "tv_habitaciones_eliminar_v1",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 1277,
+      "tipo": "tabla",
+      "nombre": "listado_engrase_aceitado",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 1334,
+      "tipo": "tabla",
+      "nombre": "fosas_mantencion_fuente",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 1344,
+      "tipo": "tabla",
+      "nombre": "fosas_alcantarillado",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 1352,
+      "tipo": "tabla",
+      "nombre": "contactos_servicio_fosas",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 1373,
+      "tipo": "tabla",
+      "nombre": "comentarios_excel",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 1429,
+      "tipo": "tabla",
+      "nombre": "guias_mantencion",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 1433,
+      "tipo": "tabla",
+      "nombre": "guia_mantencion_secciones",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 1437,
+      "tipo": "tabla",
+      "nombre": "guia_mantencion_items",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 1499,
+      "tipo": "rpc",
+      "nombre": "guia_contenido_guardar_guia",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 1533,
+      "tipo": "rpc",
+      "nombre": "guia_contenido_guardar_seccion",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 1566,
+      "tipo": "rpc",
+      "nombre": "guia_contenido_guardar_item",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 1608,
+      "tipo": "rpc",
+      "nombre": "guia_contenido_reordenar",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 1665,
+      "tipo": "tabla",
+      "nombre": null,
+      "dinamica": true,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 1695,
+      "tipo": "tabla",
+      "nombre": "jardineria_sectores",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 1699,
+      "tipo": "tabla",
+      "nombre": "jardineria_trabajos",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 1706,
+      "tipo": "tabla",
+      "nombre": "jardineria_riego_programacion",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 1710,
+      "tipo": "tabla",
+      "nombre": "jardineria_riego_zonas",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 1714,
+      "tipo": "tabla",
+      "nombre": "jardineria_riego_notas",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 1718,
+      "tipo": "tabla",
+      "nombre": "jardineria_labores_complementarias",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 1779,
+      "tipo": "rpc",
+      "nombre": "jardineria_sector_actualizar",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 1821,
+      "tipo": "rpc",
+      "nombre": "jardineria_trabajo_actualizar",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 1853,
+      "tipo": "rpc",
+      "nombre": "jardineria_riego_programacion_actualizar",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 1881,
+      "tipo": "rpc",
+      "nombre": "jardineria_riego_zona_actualizar",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 1911,
+      "tipo": "rpc",
+      "nombre": "jardineria_riego_nota_actualizar",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 1956,
+      "tipo": "rpc",
+      "nombre": "jardineria_labor_actualizar",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 1988,
+      "tipo": "tabla",
+      "nombre": "prevencion_gantt_planes",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 1991,
+      "tipo": "tabla",
+      "nombre": "prevencion_gantt_fases",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 1995,
+      "tipo": "tabla",
+      "nombre": "prevencion_gantt_items",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 1999,
+      "tipo": "tabla",
+      "nombre": "prevencion_gantt_segmentos",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 2096,
+      "tipo": "rpc",
+      "nombre": "prevencion_gantt_guardar_plan",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 2134,
+      "tipo": "rpc",
+      "nombre": "prevencion_gantt_guardar_fase",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 2185,
+      "tipo": "rpc",
+      "nombre": "prevencion_gantt_guardar_item",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantenciones.service.js",
+      "linea": 2227,
+      "tipo": "rpc",
+      "nombre": "prevencion_gantt_reordenar",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantencionesReactivas.service.js",
+      "linea": 9,
+      "tipo": "tabla",
+      "nombre": "mantenciones_reactivas",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantencionesReactivas.service.js",
+      "linea": 22,
+      "tipo": "tabla",
+      "nombre": "mantenciones_reactivas",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantencionesReactivas.service.js",
+      "linea": 36,
+      "tipo": "tabla",
+      "nombre": "mantenciones_reactivas",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantencionesReactivas.service.js",
+      "linea": 49,
+      "tipo": "tabla",
+      "nombre": "solicitudes_reactivas_eventos",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantencionesReactivas.service.js",
+      "linea": 63,
+      "tipo": "tabla",
+      "nombre": "mantenciones_reactivas_ciclos",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantencionesReactivas.service.js",
+      "linea": 79,
+      "tipo": "tabla",
+      "nombre": "trabajadores",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantencionesReactivas.service.js",
+      "linea": 101,
+      "tipo": "rpc",
+      "nombre": "mantencion_reactiva_reabrir",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantencionesReactivas.service.js",
+      "linea": 118,
+      "tipo": "rpc",
+      "nombre": "mantencion_reactiva_cambiar_estado",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mantencionesReactivas.service.js",
+      "linea": 137,
+      "tipo": "rpc",
+      "nombre": "mantencion_reactiva_asignar",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mejoras.service.js",
+      "linea": 53,
+      "tipo": "tabla",
+      "nombre": "tareas",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mejoras.service.js",
+      "linea": 70,
+      "tipo": "tabla",
+      "nombre": "proyectos",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mejoras.service.js",
+      "linea": 93,
+      "tipo": "tabla",
+      "nombre": "proyectos",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mejoras.service.js",
+      "linea": 124,
+      "tipo": "tabla",
+      "nombre": "tareas",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mejoras.service.js",
+      "linea": 153,
+      "tipo": "tabla",
+      "nombre": "metas_area",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mejoras.service.js",
+      "linea": 194,
+      "tipo": "tabla",
+      "nombre": "pendientes_mantencion",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mejoras.service.js",
+      "linea": 233,
+      "tipo": "tabla",
+      "nombre": "planes_anuales",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mejoras.service.js",
+      "linea": 267,
+      "tipo": "tabla",
+      "nombre": "planes_anuales",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mejoras.service.js",
+      "linea": 275,
+      "tipo": "tabla",
+      "nombre": "plan_anual_items",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/mejoras.service.js",
+      "linea": 312,
+      "tipo": "tabla",
+      "nombre": "plan_anual_pendientes",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/prevencionDocumentos.service.js",
+      "linea": 182,
+      "tipo": "tabla",
+      "nombre": "prevencion_documentos",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/prevencionDocumentos.service.js",
+      "linea": 258,
+      "tipo": "bucket",
+      "nombre": null,
+      "dinamica": true,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/prevencionDocumentos.service.js",
+      "linea": 278,
+      "tipo": "tabla",
+      "nombre": "prevencion_documentos",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/prevencionDocumentos.service.js",
+      "linea": 300,
+      "tipo": "bucket",
+      "nombre": null,
+      "dinamica": true,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/prevencionDocumentos.service.js",
+      "linea": 358,
+      "tipo": "bucket",
+      "nombre": null,
+      "dinamica": true,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/prevencionDocumentos.service.js",
+      "linea": 409,
+      "tipo": "bucket",
+      "nombre": null,
+      "dinamica": true,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/prevencionDocumentos.service.js",
+      "linea": 427,
+      "tipo": "tabla",
+      "nombre": "prevencion_documentos",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/remodelaciones.service.js",
+      "linea": 11,
+      "tipo": "tabla",
+      "nombre": "proyectos",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/remodelaciones.service.js",
+      "linea": 21,
+      "tipo": "tabla",
+      "nombre": "presupuestos",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/remodelaciones.service.js",
+      "linea": 29,
+      "tipo": "tabla",
+      "nombre": "origen_registros",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/remodelaciones.service.js",
+      "linea": 40,
+      "tipo": "tabla",
+      "nombre": "importaciones_excel",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/remodelaciones.service.js",
+      "linea": 88,
+      "tipo": "tabla",
+      "nombre": "proyectos",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/remodelaciones.service.js",
+      "linea": 97,
+      "tipo": "tabla",
+      "nombre": "presupuestos",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/remodelaciones.service.js",
+      "linea": 108,
+      "tipo": "tabla",
+      "nombre": "presupuesto_items",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/remodelaciones.service.js",
+      "linea": 117,
+      "tipo": "tabla",
+      "nombre": "gastos",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/remodelaciones.service.js",
+      "linea": 128,
+      "tipo": "tabla",
+      "nombre": "proveedores",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/remodelaciones.service.js",
+      "linea": 136,
+      "tipo": "tabla",
+      "nombre": "tareas",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/remodelaciones.service.js",
+      "linea": 144,
+      "tipo": "tabla",
+      "nombre": "origen_registros",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/remodelaciones.service.js",
+      "linea": 155,
+      "tipo": "tabla",
+      "nombre": "importaciones_excel",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/remodelaciones.service.js",
+      "linea": 196,
+      "tipo": "tabla",
+      "nombre": "proyectos",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/remodelaciones.service.js",
+      "linea": 230,
+      "tipo": "tabla",
+      "nombre": "importaciones_excel",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/remodelaciones.service.js",
+      "linea": 258,
+      "tipo": "tabla",
+      "nombre": "importaciones_excel",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/remodelaciones.service.js",
+      "linea": 264,
+      "tipo": "tabla",
+      "nombre": "gastos",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/remodelaciones.service.js",
+      "linea": 270,
+      "tipo": "tabla",
+      "nombre": "movimientos_inventario",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/remodelaciones.service.js",
+      "linea": 276,
+      "tipo": "tabla",
+      "nombre": "proveedores",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/remodelaciones.service.js",
+      "linea": 285,
+      "tipo": "tabla",
+      "nombre": "proveedores",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/remodelaciones.service.js",
+      "linea": 321,
+      "tipo": "tabla",
+      "nombre": "tareas",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/solicitudes.service.js",
+      "linea": 13,
+      "tipo": "tabla",
+      "nombre": "solicitudes_reactivas",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/solicitudes.service.js",
+      "linea": 29,
+      "tipo": "tabla",
+      "nombre": "solicitudes_reactivas",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/solicitudes.service.js",
+      "linea": 51,
+      "tipo": "tabla",
+      "nombre": "solicitudes_reactivas",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/solicitudes.service.js",
+      "linea": 65,
+      "tipo": "tabla",
+      "nombre": "solicitudes_reactivas",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/solicitudes.service.js",
+      "linea": 79,
+      "tipo": "tabla",
+      "nombre": "mantenciones_reactivas",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/solicitudes.service.js",
+      "linea": 90,
+      "tipo": "tabla",
+      "nombre": "mantenciones_reactivas",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/solicitudes.service.js",
+      "linea": 103,
+      "tipo": "rpc",
+      "nombre": "solicitud_reactiva_decidir",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/solicitudes.service.js",
+      "linea": 173,
+      "tipo": "rpc",
+      "nombre": "solicitud_reactiva_eliminar_definitiva",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/solicitudes.service.js",
+      "linea": 206,
+      "tipo": "rpc",
+      "nombre": "solicitud_reactiva_crear_aprobada",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/solicitudes.service.js",
+      "linea": 224,
+      "tipo": "tabla",
+      "nombre": "solicitudes_reactivas",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/tareasPendientes.service.js",
+      "linea": 12,
+      "tipo": "tabla",
+      "nombre": "tareas_pendientes",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/trabajadores.service.js",
+      "linea": 76,
+      "tipo": "tabla",
+      "nombre": "cuentas_documentos",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/trabajadores.service.js",
+      "linea": 97,
+      "tipo": "rpc",
+      "nombre": "usuarios_trabajadores_listar_cuentas_v1",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/trabajadores.service.js",
+      "linea": 151,
+      "tipo": "rpc",
+      "nombre": "usuarios_trabajadores_gestionar_v1",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/trabajadores.service.js",
+      "linea": 312,
+      "tipo": "rpc",
+      "nombre": "trabajadores_listar_cuentas_sistema_v1",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/trabajadores.service.js",
+      "linea": 337,
+      "tipo": "edge",
+      "nombre": "usuario-eliminacion-ejecutar",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/trabajadores.service.js",
+      "linea": 355,
+      "tipo": "tabla",
+      "nombre": "cuentas_documentos",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/trabajadores.service.js",
+      "linea": 388,
+      "tipo": "rpc",
+      "nombre": "es_administrador_actual",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/trabajadores.service.js",
+      "linea": 404,
+      "tipo": "rpc",
+      "nombre": "cuentas_documentos_reservar_retiro_v1",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/trabajadores.service.js",
+      "linea": 427,
+      "tipo": "bucket",
+      "nombre": "documentos-cuentas",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/trabajadores.service.js",
+      "linea": 442,
+      "tipo": "rpc",
+      "nombre": "cuentas_documentos_confirmar_retiro_v1",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/trabajadores.service.js",
+      "linea": 539,
+      "tipo": "rpc",
+      "nombre": "es_administrador_actual",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/trabajadores.service.js",
+      "linea": 542,
+      "tipo": "edge",
+      "nombre": null,
+      "dinamica": true,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/trabajadores.service.js",
+      "linea": 646,
+      "tipo": "bucket",
+      "nombre": "documentos-cuentas",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/trabajadores.service.js",
+      "linea": 680,
+      "tipo": "tabla",
+      "nombre": "trabajadores",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/trabajadores.service.js",
+      "linea": 710,
+      "tipo": "tabla",
+      "nombre": "trabajadores",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/trabajadores.service.js",
+      "linea": 757,
+      "tipo": "tabla",
+      "nombre": "trabajadores",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/trabajadores.service.js",
+      "linea": 826,
+      "tipo": "tabla",
+      "nombre": "trabajadores",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/trabajadoresDocumentos.service.js",
+      "linea": 126,
+      "tipo": "tabla",
+      "nombre": "trabajadores_documentos",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/trabajadoresDocumentos.service.js",
+      "linea": 201,
+      "tipo": "bucket",
+      "nombre": null,
+      "dinamica": true,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/trabajadoresDocumentos.service.js",
+      "linea": 221,
+      "tipo": "tabla",
+      "nombre": "trabajadores_documentos",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/trabajadoresDocumentos.service.js",
+      "linea": 243,
+      "tipo": "bucket",
+      "nombre": null,
+      "dinamica": true,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/trabajadoresDocumentos.service.js",
+      "linea": 288,
+      "tipo": "tabla",
+      "nombre": "trabajadores_documentos",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/trabajadoresDocumentos.service.js",
+      "linea": 305,
+      "tipo": "bucket",
+      "nombre": null,
+      "dinamica": true,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/trabajadoresDocumentos.service.js",
+      "linea": 341,
+      "tipo": "tabla",
+      "nombre": "trabajadores_documentos",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/trabajadoresDocumentos.service.js",
+      "linea": 355,
+      "tipo": "bucket",
+      "nombre": null,
+      "dinamica": true,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/trabajadoresDocumentos.service.js",
+      "linea": 373,
+      "tipo": "tabla",
+      "nombre": "trabajadores_documentos",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/usuarios.service.js",
+      "linea": 197,
+      "tipo": "edge",
+      "nombre": "usuario-eliminacion-ejecutar",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/usuarios.service.js",
+      "linea": 268,
+      "tipo": "edge",
+      "nombre": "usuario-eliminacion-ejecutar",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/usuarios.service.js",
+      "linea": 342,
+      "tipo": "edge",
+      "nombre": "usuario-eliminacion-ejecutar",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/usuarios.service.js",
+      "linea": 376,
+      "tipo": "edge",
+      "nombre": "usuario-eliminacion-ejecutar",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/usuarios.service.js",
+      "linea": 458,
+      "tipo": "edge",
+      "nombre": "usuario-eliminacion-previsualizar",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/usuarios.service.js",
+      "linea": 474,
+      "tipo": "tabla",
+      "nombre": "usuarios_gestion_auditoria",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/usuarios.service.js",
+      "linea": 503,
+      "tipo": "rpc",
+      "nombre": null,
+      "dinamica": true,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/usuarios.service.js",
+      "linea": 528,
+      "tipo": "tabla",
+      "nombre": "usuarios_sesion_cambios",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/usuarios.service.js",
+      "linea": 534,
+      "tipo": "tabla",
+      "nombre": "usuarios",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/usuarios.service.js",
+      "linea": 540,
+      "tipo": "tabla",
+      "nombre": "roles",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/usuarios.service.js",
+      "linea": 541,
+      "tipo": "rpc",
+      "nombre": "mi_estado_administrativo",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/usuarios.service.js",
+      "linea": 552,
+      "tipo": "tabla",
+      "nombre": "administraciones_temporales",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/usuarios.service.js",
+      "linea": 571,
+      "tipo": "tabla",
+      "nombre": "usuarios_correos_verificados",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/usuarios.service.js",
+      "linea": 586,
+      "tipo": "tabla",
+      "nombre": "usuarios",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/usuarios.service.js",
+      "linea": 621,
+      "tipo": "tabla",
+      "nombre": "usuarios",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/usuarios.service.js",
+      "linea": 649,
+      "tipo": "tabla",
+      "nombre": "roles",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/usuarios.service.js",
+      "linea": 810,
+      "tipo": "tabla",
+      "nombre": "usuarios",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/usuarios.service.js",
+      "linea": 814,
+      "tipo": "rpc",
+      "nombre": "aprobar_usuario_normal",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/usuarios.service.js",
+      "linea": 877,
+      "tipo": "rpc",
+      "nombre": "mi_estado_administrativo",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/usuarios.service.js",
+      "linea": 912,
+      "tipo": "tabla",
+      "nombre": "administraciones_temporales",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/usuarios.service.js",
+      "linea": 933,
+      "tipo": "tabla",
+      "nombre": "administraciones_temporales",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/usuarios.service.js",
+      "linea": 979,
+      "tipo": "rpc",
+      "nombre": "otorgar_administracion_temporal",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/services/usuarios.service.js",
+      "linea": 1029,
+      "tipo": "rpc",
+      "nombre": "revocar_administracion_temporal",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    },
+    {
+      "archivo": "js/views/admin.js",
+      "linea": 884,
+      "tipo": "edge",
+      "nombre": "usuario-invitaciones",
+      "dinamica": false,
+      "revision_backend": "PENDIENTE"
+    }
+  ],
+  "actualizado_en": "2026-11-16",
+  "estado": "INDICE_LOCAL_NO_CERTIFICACION_REMOTA",
+  "fuente_referencias_sql_versionadas": "docs/sql-propuestas/captura_historica_contratos_instalados.json (exportación histórica189/190; NO contratos actuales)",
+  "referencias_sql_v2_propuesta": [
+    "public.usuarios_identidades_historicas",
+    "public.trabajadores",
+    "public.cuentas_documentos",
+    "public.cuentas_documentos_retiros",
+    "public.trabajadores_documentos",
+    "public.prevencion_documentos",
+    "storage.objects",
+    "storage.buckets",
+    "public.tareas",
+    "public.mantenciones",
+    "public.tareas_pendientes",
+    "public.tareas_pendientes_asignaciones",
+    "public.tareas_pendientes_operaciones",
+    "public.mantenciones_operativas",
+    "public.mantenciones_operativas_responsables",
+    "public.mantenciones_reactivas",
+    "public.mantencion_historial",
+    "public.mantencion_historial_anulaciones",
+    "public.mantenciones_operativas_anulaciones",
+    "public.usuarios_gestion_auditoria",
+    "public.del_registro_eliminaciones",
+    "public.usuarios_eliminaciones_operaciones",
+    "public.guia_contenido_auditoria",
+    "public.inventario_catalogo_auditoria",
+    "public.inventario_entradas_formatos",
+    "public.inventario_movimientos",
+    "public.inventario_movimientos_anulaciones",
+    "public.inventario_productos",
+    "public.bodegas_inventariados",
+    "public.jardineria_contenido_auditoria",
+    "public.prevencion_gantt_contenido_auditoria",
+    "public.administraciones_temporales",
+    "public.solicitudes_reactivas",
+    "public.solicitudes_reactivas_avisos",
+    "public.solicitudes_reactivas_avisos_estado",
+    "public.solicitudes_notificaciones_revision",
+    "public.solicitudes_reactivas_eliminaciones_auditoria",
+    "public.solicitudes_reactivas_eventos",
+    "public.alertas",
+    "public.usuarios_correos_verificados",
+    "public.usuarios_sesion_cambios",
+    "public.usuarios_trabajadores_vinculos_auditoria",
+    "public.mantenciones_reactivas_ciclos",
+    "public.televisores_habitaciones",
+    "public.televisores_habitaciones_auditoria",
+    "public.usuarios_creaciones_manuales_operaciones"
+  ],
+  "fuente_referencias_sql_v2": "supabase/sql-propuestas/20261113_conservacion_cuentas_revision.sql (ensayo histórico ROLLBACK, NO exportación productiva exacta)",
+  "continuidad": "docs/HANDOFF_TECNICO.md — encabezado PASO 375K.29; clasificación, dependencias y riesgos",
+  "evidencia_produccion": {
+    "fuente": "Confirmaciones del usuario en conversación, no inspección remota del agente",
+    "eliminacion_v2": "APROBADA_GENERAL_SIN_ALLOWLIST_UUID",
+    "documentos_institucionales_e_historicos": "APROBADOS",
+    "auditoria_sql_informada": "34/34",
+    "lectura_historica_informada": "7/7",
+    "matriz_global_certificada": false
+  },
+  "pendiente_local": {
+    "modales_375K27": "APROBADOS_NO_PUBLICADOS",
+    "pruebas_focalizadas": "20/20 locales",
+    "visuales": "12/12 aprobadas e informadas por usuario",
+    "publicacion": "UN commit/push tras aprobación del bloque completo"
+  },
+  "contratos_documentales_md5_reportados": {
+    "cuentas_documentos_reservar_retiro_v1": "7ad66dfa3b74cc9f12a193c5fb89de1d",
+    "cuentas_documentos_confirmar_retiro_v1": "b7beb45a1f8b7c9a848a3b50ab6142ed",
+    "cuentas_documentos_retiro_identidad_v1": "6b3c34e323b9520053336ee28e9fbb63"
+  }
+}
