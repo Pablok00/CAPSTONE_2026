@@ -1,9 +1,44 @@
-# Aplicación final — Hotel El Almendro
+# Aplicación web — Hotel & Centro de Eventos El Almendro
 
-El código fuente operativo se mantiene en el repositorio privado [Pablok00/pruebaelalmendro](https://github.com/Pablok00/pruebaelalmendro). El acceso requiere autorización del propietario.
+## Sistema de Obras, Mantención y Mejoras
 
-La aplicación utiliza HTML, CSS y JavaScript, Supabase/PostgreSQL y Vercel. La documentación de [despliegue](../Documentacion_Por_Fases/Fase_3_Implementacion_y_Cierre/03_Manuales_y_Despliegue/02_Guia_Implementacion_y_Despliegue.docx) describe cómo preparar y verificar una publicación autorizada.
+Esta carpeta reúne el **código fuente de la aplicación web** desarrollada por el equipo BPB para el Hotel & Centro de Eventos El Almendro.
 
-Se revisó una copia comprimida `pruebaelalmendro.rar`, que contiene historial `.git` y diferencias entre raíz y `publicacion/`. No debe considerarse automáticamente la versión publicada; no se incorpora aquí para evitar duplicar el repositorio privado o divulgar su código.
+**[Explorar el código de la aplicación](pruebaelalmendro/)**
 
-**Pendiente:** vincular el commit exacto de la versión final, comprobar el despliegue y documentar pruebas y conformidad.
+## Propósito
+
+La plataforma permite organizar y consultar información relacionada con mantenciones generales y reactivas, obras, mejoras, solicitudes, inventario, trabajadores, tareas y planificación. Las funciones disponibles dependen del perfil de cada usuario.
+
+## Tecnologías utilizadas
+
+| Tecnología | Uso |
+|---|---|
+| HTML, CSS y JavaScript | Interfaz y funcionalidades de la plataforma |
+| Supabase y PostgreSQL | Autenticación, almacenamiento de información y operaciones de datos |
+| Vercel | Alojamiento de la aplicación web |
+| GitHub | Control de versiones y documentación del proyecto |
+
+## Estructura principal
+
+| Ruta | Contenido |
+|---|---|
+| [`pruebaelalmendro/index.html`](pruebaelalmendro/index.html) | Página principal |
+| [`pruebaelalmendro/login.html`](pruebaelalmendro/login.html) | Inicio de sesión |
+| [`pruebaelalmendro/js/`](pruebaelalmendro/js/) | Lógica, servicios y módulos |
+| [`pruebaelalmendro/css/`](pruebaelalmendro/css/) | Estilos |
+| [`pruebaelalmendro/docs/`](pruebaelalmendro/docs/) | Documentación técnica del código |
+
+## Documentos de apoyo
+
+- [Manual de usuario por rol](../Documentacion_Por_Fases/Fase_3_Implementacion_y_Cierre/03_Manuales_y_Despliegue/01_Manual_Usuario_por_Rol.docx)
+- [Guía de implementación y despliegue](../Documentacion_Por_Fases/Fase_3_Implementacion_y_Cierre/03_Manuales_y_Despliegue/02_Guia_Implementacion_y_Despliegue.docx)
+- [Plan de pruebas y validación](../Documentacion_Por_Fases/Fase_3_Implementacion_y_Cierre/02_Pruebas_y_Validacion/03_Plan_de_Pruebas_y_Validacion.docx)
+
+## Uso y configuración
+
+Para revisar la interfaz localmente, abra la carpeta de la aplicación con un servidor HTTP, como Live Server, y acceda a `login.html`.
+
+La aplicación utiliza servicios alojados de Supabase: **ejecutarla localmente no crea una base de datos local ni aísla automáticamente los datos**. Las pruebas que modifican información deben realizarse con cuentas y datos autorizados.
+
+El repositorio contiene el código y la documentación de la solución. La configuración real de servicios y los resultados de validación deben comprobarse en sus respectivos entornos y registros.
