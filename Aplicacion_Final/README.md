@@ -4,7 +4,7 @@
 
 Esta carpeta reúne el **código fuente de la aplicación web** desarrollada por el equipo BPB para el Hotel & Centro de Eventos El Almendro.
 
-**[Explorar el código de la aplicación](pruebaelalmendro/)**
+**[Explorar el código de la aplicación](Sistema_Web_El_Almendro/)**
 
 ## Propósito
 
@@ -23,11 +23,11 @@ La plataforma permite organizar y consultar información relacionada con mantenc
 
 | Ruta | Contenido |
 |---|---|
-| [`pruebaelalmendro/index.html`](pruebaelalmendro/index.html) | Página principal |
-| [`pruebaelalmendro/login.html`](pruebaelalmendro/login.html) | Inicio de sesión |
-| [`pruebaelalmendro/js/`](pruebaelalmendro/js/) | Lógica, servicios y módulos |
-| [`pruebaelalmendro/css/`](pruebaelalmendro/css/) | Estilos |
-| [`pruebaelalmendro/docs/`](pruebaelalmendro/docs/) | Documentación técnica del código |
+| [`Sistema_Web_El_Almendro/index.html`](Sistema_Web_El_Almendro/index.html) | Página principal |
+| [`Sistema_Web_El_Almendro/login.html`](Sistema_Web_El_Almendro/login.html) | Inicio de sesión |
+| [`Sistema_Web_El_Almendro/js/`](Sistema_Web_El_Almendro/js/) | Lógica, servicios y módulos |
+| [`Sistema_Web_El_Almendro/css/`](Sistema_Web_El_Almendro/css/) | Estilos |
+| [`Sistema_Web_El_Almendro/docs/`](Sistema_Web_El_Almendro/docs/) | Documentación técnica del código |
 
 ## Documentos de apoyo
 
