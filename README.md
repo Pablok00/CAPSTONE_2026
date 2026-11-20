@@ -5,6 +5,7 @@
 
 - [Documentación por fases: planificación, desarrollo e implementación y cierre](Documentacion_Por_Fases/README.md)
 - [Entregas grupales: Entrega 1, Entrega 2 y Entrega 3](Entregas_Grupales/README.md)
+- [Código fuente de la aplicación](Aplicacion_Final/README.md)
 - Entregas individuales: [Benjamín](AVA%20Benjamin%20Salinas/) · [Bruno](AVA%20Bruno%20Carpio/) · [Pablo](AVA%20Pablo%20Gamboa/)
 
 **Scrum** es el marco de gestión del proyecto. Las fases y entregas son hitos académicos, no sprints ni una metodología híbrida.
